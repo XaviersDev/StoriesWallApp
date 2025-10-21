@@ -204,6 +204,9 @@
                 <button class="option-btn" data-parts="12">12</button>
                 <button class="option-btn" data-parts="15">15</button>
                 <button class="option-btn" data-parts="18">18</button>
+                <button class="option-btn" data-parts="21">21</button>
+                <button class="option-btn" data-parts="25">25</button>
+                <button class="option-btn" data-parts="28">28</button>
             </div>
             
             <div class="options-label">Режим</div>
@@ -336,7 +339,7 @@
             
             const parts = parseInt(partsGroup.querySelector('.active').dataset.parts, 10);
             const fitMode = modeGroup.querySelector('.active').dataset.mode;
-            const GRID_ROWS = parts / GRID_COLS;
+            const GRID_ROWS = Math.ceil(parts / GRID_COLS); // ИЗМЕНЕНО: Округляем вверх для корректного числа рядов
             
             const totalContentWidth = PIECE_WIDTH * GRID_COLS;
             const totalContentHeight = PIECE_HEIGHT * GRID_ROWS;
@@ -372,33 +375,35 @@
 
             previewGrid.style.gridTemplateRows = `repeat(${GRID_ROWS}, 1fr)`;
 
-            for (let row = 0; row < GRID_ROWS; row++) {
-                for (let col = 0; col < GRID_COLS; col++) {
-                    const sx = col * PIECE_WIDTH;
-                    const sy = row * PIECE_HEIGHT;
+            // ИЗМЕНЕНО: Цикл заменен на более надежный, чтобы создавать ровно `parts` частей
+            for (let i = 0; i < parts; i++) {
+                const row = Math.floor(i / GRID_COLS);
+                const col = i % GRID_COLS;
+                
+                const sx = col * PIECE_WIDTH;
+                const sy = row * PIECE_HEIGHT;
 
-                    const previewCanvas = document.createElement('canvas');
-                    previewCanvas.width = PIECE_WIDTH;
-                    previewCanvas.height = PIECE_HEIGHT;
-                    previewCanvas.getContext('2d').drawImage(
-                        sourceCanvas, sx, sy, PIECE_WIDTH, PIECE_HEIGHT,
-                        0, 0, PIECE_WIDTH, PIECE_HEIGHT
-                    );
+                const previewCanvas = document.createElement('canvas');
+                previewCanvas.width = PIECE_WIDTH;
+                previewCanvas.height = PIECE_HEIGHT;
+                previewCanvas.getContext('2d').drawImage(
+                    sourceCanvas, sx, sy, PIECE_WIDTH, PIECE_HEIGHT,
+                    0, 0, PIECE_WIDTH, PIECE_HEIGHT
+                );
 
-                    const previewImg = document.createElement('img');
-                    previewImg.src = previewCanvas.toDataURL('image/jpeg', 0.8);
-                    
-                    const cell = document.createElement('div');
-                    cell.className = 'preview-cell';
-                    
-                    const number = document.createElement('div');
-                    number.className = 'preview-number';
-                    number.textContent = (row * GRID_COLS + col + 1);
-                    
-                    cell.appendChild(previewImg);
-                    cell.appendChild(number);
-                    previewGrid.appendChild(cell);
-                }
+                const previewImg = document.createElement('img');
+                previewImg.src = previewCanvas.toDataURL('image/jpeg', 0.8);
+                
+                const cell = document.createElement('div');
+                cell.className = 'preview-cell';
+                
+                const number = document.createElement('div');
+                number.className = 'preview-number';
+                number.textContent = i + 1;
+                
+                cell.appendChild(previewImg);
+                cell.appendChild(number);
+                previewGrid.appendChild(cell);
             }
 
             loading.classList.remove('visible');
