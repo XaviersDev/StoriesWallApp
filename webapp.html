@@ -3,188 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>StoriesWall Preview</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>StoriesWall - Создай свою стенку из историй</title>
+    
+    <!-- Fonts and Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <!-- JSZip library for creating ZIP files in the browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         :root {
-            --tg-theme-bg-color: #ffffff;
-            --tg-theme-text-color: #000000;
-            --tg-theme-hint-color: #999999;
-            --tg-theme-link-color: #2481cc;
-            --tg-theme-button-color: #2481cc;
-            --tg-theme-button-text-color: #ffffff;
-            --tg-theme-secondary-bg-color: #f4f4f5;
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #4A90E2;
+            --text-color: #e0e0e0;
+            --hint-color: #888888;
+            --border-color: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
-            padding: 0;
-            margin: 0;
-            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
         }
 
         .container {
-            max-width: 100%;
-            padding: 16px;
-            padding-bottom: 80px;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 24px 16px 100px 16px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
-            padding-top: 8px;
+            margin-bottom: 32px;
         }
-
         .header h1 {
-            font-size: 22px;
+            font-size: 28px;
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
-
         .header p {
-            font-size: 13px;
-            color: var(--tg-theme-hint-color);
-            line-height: 1.4;
+            font-size: 15px;
+            color: var(--hint-color);
+            line-height: 1.5;
         }
 
         .upload-area {
-            border: 2px dashed var(--tg-theme-hint-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed var(--border-color);
             border-radius: 16px;
-            padding: 40px 20px;
+            padding: 60px 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease-in-out;
+            background-color: var(--surface-color);
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: #2a2a2a;
+        }
+        .upload-area .material-symbols-outlined {
+            font-size: 56px;
+            color: var(--primary-color);
             margin-bottom: 16px;
-            background: var(--tg-theme-secondary-bg-color);
         }
-
-        .upload-area.dragover {
-            border-color: var(--tg-theme-button-color);
-            background-color: rgba(36, 129, 204, 0.1);
+        .upload-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color);
         }
-
-        .upload-icon { font-size: 48px; margin-bottom: 12px; }
-        .upload-text { font-size: 14px; color: var(--tg-theme-hint-color); font-weight: 500; }
-        .image-preview { width: 100%; border-radius: 12px; margin-bottom: 16px; display: none; }
-        .image-preview.visible { display: block; }
-        .image-preview img { width: 100%; border-radius: 12px; }
-
-        .options-container {
-            display: none;
+        .upload-hint {
+            font-size: 13px;
+            color: var(--hint-color);
+            margin-top: 8px;
         }
-        .options-container.visible {
+        #imageLoader { display: none; }
+        
+        #mainContent {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .hidden { display: none !important; }
+
+        .image-preview-small {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .image-preview-small img {
+            width: 100%;
             display: block;
         }
         
-        .options-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--tg-theme-hint-color);
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            padding-left: 4px;
-        }
-
-        .options-group {
+        .controls-card {
+            background-color: var(--surface-color);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
             display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 20px;
         }
         
-        .option-btn {
-            flex: 1;
-            min-width: 70px;
-            padding: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 10px;
-            border: 2px solid var(--tg-theme-secondary-bg-color);
-            background: var(--tg-theme-secondary-bg-color);
-            color: var(--tg-theme-hint-color);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .option-btn.active {
-            border-color: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-color);
-            background: transparent;
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         
-        /* Стили для слайдера */
-        .slider-wrapper {
-            background: var(--tg-theme-secondary-bg-color);
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-        }
-        .slider-container {
+        .control-label {
             display: flex;
             align-items: center;
-            gap: 16px;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--hint-color);
         }
+        .control-label .material-symbols-outlined {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+        #partsValue {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
         #partsSlider {
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
-            flex: 1;
             height: 6px;
-            background: rgba(120, 120, 128, 0.2);
+            background: var(--border-color);
             border-radius: 3px;
             outline: none;
         }
         #partsSlider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 24px;
-            height: 24px;
-            background: var(--tg-theme-button-color);
+            width: 22px;
+            height: 22px;
+            background: var(--primary-color);
             cursor: pointer;
             border-radius: 50%;
-            border: 4px solid var(--tg-theme-bg-color);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            border: 4px solid var(--surface-color);
         }
         #partsSlider::-moz-range-thumb {
-            width: 24px;
-            height: 24px;
-            background: var(--tg-theme-button-color);
+            width: 22px;
+            height: 22px;
+            background: var(--primary-color);
             cursor: pointer;
             border-radius: 50%;
-            border: 4px solid var(--tg-theme-bg-color);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            border: 4px solid var(--surface-color);
         }
-        #partsValue {
-            font-size: 16px;
+        
+        .mode-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .mode-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            font-size: 14px;
             font-weight: 600;
-            color: var(--tg-theme-text-color);
-            min-width: 24px;
-            text-align: right;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            background: transparent;
+            color: var(--hint-color);
+            cursor: pointer;
+            transition: all 0.2s;
         }
-
-        .preview-grid {
+        .mode-btn.active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: rgba(74, 144, 226, 0.1);
+        }
+        .mode-btn .material-symbols-outlined { font-size: 20px; }
+        
+        #previewGrid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 4px;
-            padding: 8px;
-            background: var(--tg-theme-secondary-bg-color);
             border-radius: 12px;
-            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
         }
-        .preview-grid.hidden { display: none; }
         .preview-cell {
             position: relative;
-            padding-top: 124.26%;
-            background: var(--tg-theme-bg-color);
-            border-radius: 4px;
+            padding-top: 124.26%; /* 1342 / 1080 Aspect Ratio */
+            background: var(--surface-color);
             overflow: hidden;
         }
         .preview-cell img {
@@ -195,146 +226,206 @@
             height: 100%;
             object-fit: cover;
         }
-        .preview-number {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
+
+        #downloadBtn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--primary-color);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .status { text-align: center; font-size: 14px; color: var(--tg-theme-hint-color); margin: 16px 0; min-height: 20px; }
-        input[type="file"] { display: none; }
-        .loading { display: none; text-align: center; padding: 20px; }
-        .loading.visible { display: block; }
+        #downloadBtn:disabled {
+            background-color: var(--border-color);
+            color: var(--hint-color);
+            cursor: not-allowed;
+        }
+        #downloadBtn:not(:disabled):hover {
+            opacity: 0.9;
+        }
+        #downloadBtn .material-symbols-outlined { font-size: 22px; }
+        
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            color: white;
+            text-align: center;
+        }
         .spinner {
-            border: 3px solid var(--tg-theme-secondary-bg-color);
-            border-top: 3px solid var(--tg-theme-button-color);
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid var(--primary-color);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 12px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .info-box { background: var(--tg-theme-secondary-bg-color); border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 13px; line-height: 1.5; }
-        .info-box.hidden { display: none; }
+        .loader p {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 13px;
+            color: var(--hint-color);
+        }
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>✨ Предпросмотр стенки</h1>
-            <p>Загрузи картинку и выбери параметры, чтобы увидеть результат</p>
-        </div>
 
-        <div class="info-box" id="infoBox">
-            ℹ️ Это только предпросмотр! Для создания стенки вернись в бота и отправь картинку там.
-        </div>
+    <div class="loader hidden" id="loader">
+        <div class="spinner"></div>
+        <p id="loaderText">Обработка...</p>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1>StoriesWall</h1>
+            <p>Создай бесшовную стенку из историй для своего профиля. Быстро, бесплатно и прямо в браузере.</p>
+        </header>
 
         <label for="imageLoader" class="upload-area" id="uploadArea">
-            <div class="upload-icon">🖼</div>
-            <div class="upload-text">Нажми для выбора изображения</div>
+            <span class="material-symbols-outlined">image</span>
+            <div class="upload-text">Нажми или перетащи изображение</div>
+            <div class="upload-hint">Вся обработка происходит на твоём устройстве</div>
         </label>
         <input type="file" id="imageLoader" accept="image/*">
 
-        <div class="image-preview" id="imagePreview">
-            <img id="previewImage" src="" alt="Preview">
-        </div>
-        
-        <div class="options-container" id="optionsContainer">
-            <div class="options-label">Количество частей</div>
-            <div class="slider-wrapper">
-                <div class="slider-container">
+        <main id="mainContent" class="hidden">
+            <div class="image-preview-small">
+                <img id="previewImage" src="" alt="Uploaded image preview">
+            </div>
+
+            <div class="controls-card">
+                <div class="control-group">
+                    <div class="control-label">
+                        <label for="partsSlider" style="display: flex; align-items: center;">
+                            <span class="material-symbols-outlined">grid_on</span> Количество частей
+                        </label>
+                        <span id="partsValue">9</span>
+                    </div>
                     <input type="range" id="partsSlider" min="3" max="99" step="3" value="9">
-                    <span id="partsValue">9</span>
+                </div>
+                
+                <div class="control-group">
+                     <div class="control-label">
+                        <label style="display: flex; align-items: center;">
+                            <span class="material-symbols-outlined">aspect_ratio</span> Режим
+                        </label>
+                    </div>
+                    <div class="mode-buttons" id="modeGroup">
+                        <button class="mode-btn active" data-mode="cover">
+                            <span class="material-symbols-outlined">crop_free</span>Обрезать
+                        </button>
+                        <button class="mode-btn" data-mode="contain">
+                            <span class="material-symbols-outlined">fullscreen_exit</span>Вписать
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <div id="previewGrid"></div>
             
-            <div class="options-label">Режим</div>
-            <div class="options-group" id="modeGroup">
-                <button class="option-btn active" data-mode="cover">✂️ Обрезать</button>
-                <button class="option-btn" data-mode="contain">🖼 Вписать</button>
-            </div>
-        </div>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <div>Создаю предпросмотр...</div>
-        </div>
-
-        <div class="preview-grid hidden" id="previewGrid"></div>
-
-        <div class="status" id="status">Выбери изображение для предпросмотра</div>
+            <button id="downloadBtn" disabled>
+                <span class="material-symbols-outlined">download</span>
+                Скачать (.zip)
+            </button>
+        </main>
+        
+        <footer>
+            <p>Made with ❤️ by <a href="https://t.me/AlliSighs" target="_blank">AlliSighs</a></p>
+        </footer>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        
-        tg.ready();
-        tg.expand();
-        tg.BackButton.show();
-        
-        tg.BackButton.onClick(() => tg.close());
-
-        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#ffffff');
-        document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#000000');
-        document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#999999');
-        document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#2481cc');
-        document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color || '#ffffff');
-        document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f4f4f5');
-
-        let originalImage = null;
-
-        const imageLoader = document.getElementById('imageLoader');
+        // DOM Elements
         const uploadArea = document.getElementById('uploadArea');
-        const imagePreview = document.getElementById('imagePreview');
+        const imageLoader = document.getElementById('imageLoader');
+        const mainContent = document.getElementById('mainContent');
         const previewImage = document.getElementById('previewImage');
-        const optionsContainer = document.getElementById('optionsContainer');
         const partsSlider = document.getElementById('partsSlider');
         const partsValue = document.getElementById('partsValue');
         const modeGroup = document.getElementById('modeGroup');
         const previewGrid = document.getElementById('previewGrid');
-        const status = document.getElementById('status');
-        const loading = document.getElementById('loading');
-        const infoBox = document.getElementById('infoBox');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loader = document.getElementById('loader');
+        const loaderText = document.getElementById('loaderText');
 
+        // State variables
+        let originalImage = null;
+        let generatedBlobs = [];
+
+        // Event Listeners
+        uploadArea.addEventListener('click', () => imageLoader.click());
         imageLoader.addEventListener('change', handleFileSelect);
-        
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+        });
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        partsSlider.addEventListener('input', () => {
+            partsValue.textContent = partsSlider.value;
+        });
+        partsSlider.addEventListener('change', generatePreview); // Regenerate only when user releases slider
+
+        modeGroup.addEventListener('click', (e) => {
+            const button = e.target.closest('.mode-btn');
+            if (button) {
+                modeGroup.querySelector('.active').classList.remove('active');
+                button.classList.add('active');
+                generatePreview();
+            }
         });
         
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
+        downloadBtn.addEventListener('click', downloadZip);
+
+        function preventDefaults(e) {
             e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
+            e.stopPropagation();
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
             if (file && file.type.startsWith('image/')) {
                 loadImage(file);
             }
-        });
+        }
         
-        partsSlider.addEventListener('input', (e) => {
-            partsValue.textContent = e.target.value;
-            if (originalImage) updatePreview();
-        });
-        
-        modeGroup.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') {
-                modeGroup.querySelector('.active').classList.remove('active');
-                e.target.classList.add('active');
-                if (originalImage) updatePreview();
-            }
-        });
-
         function handleFileSelect(e) {
             const file = e.target.files[0];
             if (file) {
@@ -343,45 +434,51 @@
         }
 
         function loadImage(file) {
-            status.textContent = 'Загрузка изображения...';
+            showLoader('Загрузка изображения...');
             const reader = new FileReader();
-            
-            reader.onload = (event) => {
+            reader.onload = (e) => {
                 const img = new Image();
                 img.onload = () => {
                     originalImage = img;
-                    previewImage.src = event.target.result;
-                    imagePreview.classList.add('visible');
-                    optionsContainer.classList.add('visible');
-                    infoBox.classList.add('hidden');
-                    updatePreview();
+                    previewImage.src = e.target.result;
+                    uploadArea.classList.add('hidden');
+                    mainContent.classList.remove('hidden');
+                    generatePreview();
                 };
                 img.onerror = () => {
-                    status.textContent = 'Ошибка загрузки файла';
-                    tg.showAlert('Не удалось загрузить изображение. Попробуй другой файл.');
+                    alert('Не удалось загрузить изображение. Пожалуйста, попробуйте другой файл.');
+                    hideLoader();
                 };
-                img.src = event.target.result;
+                img.src = e.target.result;
             };
-            
             reader.readAsDataURL(file);
         }
+        
+        function showLoader(text) {
+            loaderText.textContent = text;
+            loader.classList.remove('hidden');
+        }
 
-        async function updatePreview() {
+        function hideLoader() {
+            loader.classList.add('hidden');
+        }
+        
+        async function generatePreview() {
             if (!originalImage) return;
-            
-            status.textContent = 'Создаю предпросмотр...';
-            loading.classList.add('visible');
-            previewGrid.classList.add('hidden');
+
+            showLoader('Создаю предпросмотр...');
+            await new Promise(resolve => setTimeout(resolve, 50)); // Allow UI to update
+
             previewGrid.innerHTML = '';
+            downloadBtn.disabled = true;
+            generatedBlobs = [];
 
-            await new Promise(resolve => setTimeout(resolve, 50));
-
+            const parts = parseInt(partsSlider.value, 10);
+            const fitMode = modeGroup.querySelector('.active').dataset.mode;
+            
             const PIECE_WIDTH = 1080;
             const PIECE_HEIGHT = 1342;
             const GRID_COLS = 3;
-            
-            const parts = parseInt(partsSlider.value, 10);
-            const fitMode = modeGroup.querySelector('.active').dataset.mode;
             const GRID_ROWS = parts / GRID_COLS;
             
             const totalContentWidth = PIECE_WIDTH * GRID_COLS;
@@ -391,65 +488,117 @@
             sourceCanvas.width = totalContentWidth;
             sourceCanvas.height = totalContentHeight;
             const sourceCtx = sourceCanvas.getContext('2d');
+            
+            // Fill background with black for 'contain' mode
+            sourceCtx.fillStyle = 'black';
+            sourceCtx.fillRect(0, 0, totalContentWidth, totalContentHeight);
 
             const imgAspect = originalImage.width / originalImage.height;
             const contentAspect = totalContentWidth / totalContentHeight;
             let drawWidth, drawHeight, offsetX, offsetY;
-            
+
             if (fitMode === 'cover') {
-                if (imgAspect > contentAspect) {
-                    drawHeight = totalContentHeight; drawWidth = drawHeight * imgAspect;
-                    offsetX = (totalContentWidth - drawWidth) / 2; offsetY = 0;
-                } else {
-                    drawWidth = totalContentWidth; drawHeight = drawWidth / imgAspect;
-                    offsetX = 0; offsetY = (totalContentHeight - drawHeight) / 2;
+                if (imgAspect > contentAspect) { // Image is wider
+                    drawHeight = totalContentHeight;
+                    drawWidth = drawHeight * imgAspect;
+                    offsetX = (totalContentWidth - drawWidth) / 2;
+                    offsetY = 0;
+                } else { // Image is taller or same aspect
+                    drawWidth = totalContentWidth;
+                    drawHeight = drawWidth / imgAspect;
+                    offsetX = 0;
+                    offsetY = (totalContentHeight - drawHeight) / 2;
                 }
-            } else {
-                if (imgAspect > contentAspect) {
-                    drawWidth = totalContentWidth; drawHeight = drawWidth / imgAspect;
-                    offsetX = 0; offsetY = (totalContentHeight - drawHeight) / 2;
-                } else {
-                    drawHeight = totalContentHeight; drawWidth = drawHeight * imgAspect;
-                    offsetX = (totalContentWidth - drawWidth) / 2; offsetY = 0;
+            } else { // contain
+                if (imgAspect > contentAspect) { // Image is wider
+                    drawWidth = totalContentWidth;
+                    drawHeight = drawWidth / imgAspect;
+                    offsetX = 0;
+                    offsetY = (totalContentHeight - drawHeight) / 2;
+                } else { // Image is taller or same aspect
+                    drawHeight = totalContentHeight;
+                    drawWidth = drawHeight * imgAspect;
+                    offsetX = (totalContentWidth - drawWidth) / 2;
+                    offsetY = 0;
                 }
             }
 
             sourceCtx.drawImage(originalImage, offsetX, offsetY, drawWidth, drawHeight);
 
-            previewGrid.style.gridTemplateRows = `repeat(${GRID_ROWS}, 1fr)`;
+            const TARGET_WIDTH = 1080;
+            const TARGET_HEIGHT = 1920;
+            
+            for (let i = 0; i < parts; i++) {
+                const row = Math.floor(i / GRID_COLS);
+                const col = i % GRID_COLS;
+                const sx = col * PIECE_WIDTH;
+                const sy = row * PIECE_HEIGHT;
 
-            for (let row = 0; row < GRID_ROWS; row++) {
-                for (let col = 0; col < GRID_COLS; col++) {
-                    const sx = col * PIECE_WIDTH;
-                    const sy = row * PIECE_HEIGHT;
+                // Create final 1080x1920 story canvas
+                const outputCanvas = document.createElement('canvas');
+                outputCanvas.width = TARGET_WIDTH;
+                outputCanvas.height = TARGET_HEIGHT;
+                const outputCtx = outputCanvas.getContext('2d');
+                
+                // Fill with black background
+                outputCtx.fillStyle = 'black';
+                outputCtx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+                
+                // Draw the cropped piece into the center of the story canvas
+                const dx = (TARGET_WIDTH - PIECE_WIDTH) / 2;
+                const dy = (TARGET_HEIGHT - PIECE_HEIGHT) / 2;
+                outputCtx.drawImage(
+                    sourceCanvas, sx, sy, PIECE_WIDTH, PIECE_HEIGHT,
+                    dx, dy, PIECE_WIDTH, PIECE_HEIGHT
+                );
 
-                    const previewCanvas = document.createElement('canvas');
-                    previewCanvas.width = PIECE_WIDTH;
-                    previewCanvas.height = PIECE_HEIGHT;
-                    previewCanvas.getContext('2d').drawImage(
-                        sourceCanvas, sx, sy, PIECE_WIDTH, PIECE_HEIGHT,
-                        0, 0, PIECE_WIDTH, PIECE_HEIGHT
-                    );
+                // Create preview image
+                const cellImg = document.createElement('img');
+                const previewUrl = outputCanvas.toDataURL('image/jpeg', 0.8);
+                cellImg.src = previewUrl;
+                
+                const cell = document.createElement('div');
+                cell.className = 'preview-cell';
+                cell.appendChild(cellImg);
+                previewGrid.appendChild(cell);
 
-                    const previewImg = document.createElement('img');
-                    previewImg.src = previewCanvas.toDataURL('image/jpeg', 0.8);
-                    
-                    const cell = document.createElement('div');
-                    cell.className = 'preview-cell';
-                    
-                    const number = document.createElement('div');
-                    number.className = 'preview-number';
-                    number.textContent = (row * GRID_COLS + col + 1);
-                    
-                    cell.appendChild(previewImg);
-                    cell.appendChild(number);
-                    previewGrid.appendChild(cell);
-                }
+                // Store blob for zipping
+                const blob = await new Promise(resolve => outputCanvas.toBlob(resolve, 'image/png'));
+                generatedBlobs.push(blob);
             }
+            
+            downloadBtn.disabled = false;
+            hideLoader();
+        }
 
-            loading.classList.remove('visible');
-            previewGrid.classList.remove('hidden');
-            status.textContent = `✅ Вот так будет выглядеть твоя сетка из ${parts} частей!`;
+        async function downloadZip() {
+            if (generatedBlobs.length === 0) return;
+
+            showLoader('Создаю ZIP-архив...');
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            const zip = new JSZip();
+            generatedBlobs.forEach((blob, i) => {
+                const fileName = `story_${String(i + 1).padStart(2, '0')}.png`;
+                zip.file(fileName, blob);
+            });
+
+            const zipBlob = await zip.generateAsync({
+                type: "blob",
+                compression: "DEFLATE",
+                compressionOptions: { level: 9 }
+            });
+
+            // Trigger download
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(zipBlob);
+            link.download = `storieswall_${generatedBlobs.length}parts.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+
+            hideLoader();
         }
     </script>
 </body>
