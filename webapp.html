@@ -78,14 +78,32 @@
         .image-preview.visible { display: block; }
         .image-preview img { width: 100%; border-radius: 12px; }
 
+        .options-container {
+            display: none;
+        }
+        .options-container.visible {
+            display: block;
+        }
+        
+        .options-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--tg-theme-hint-color);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
         .options-group {
             display: flex;
             gap: 8px;
             margin-bottom: 16px;
+            flex-wrap: wrap;
         }
-        .options-group.hidden { display: none; }
-        .mode-btn {
+        
+        .option-btn {
             flex: 1;
+            min-width: 70px;
             padding: 10px;
             font-size: 14px;
             font-weight: 600;
@@ -96,7 +114,7 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .mode-btn.active {
+        .option-btn.active {
             border-color: var(--tg-theme-button-color);
             color: var(--tg-theme-button-color);
             background: transparent;
@@ -160,7 +178,7 @@
     <div class="container">
         <div class="header">
             <h1>✨ Предпросмотр стенки</h1>
-            <p>Загрузи картинку, чтобы увидеть, как будет выглядеть твоя сетка</p>
+            <p>Загрузи картинку и выбери параметры, чтобы увидеть результат</p>
         </div>
 
         <div class="info-box" id="infoBox">
@@ -177,9 +195,22 @@
             <img id="previewImage" src="" alt="Preview">
         </div>
         
-        <div class="options-group hidden" id="optionsGroup">
-            <button class="mode-btn active" data-mode="cover">✂️ Обрезать</button>
-            <button class="mode-btn" data-mode="contain">🖼 Вписать</button>
+        <div class="options-container" id="optionsContainer">
+            <div class="options-label">Количество частей</div>
+            <div class="options-group" id="partsGroup">
+                <button class="option-btn" data-parts="3">3</button>
+                <button class="option-btn" data-parts="6">6</button>
+                <button class="option-btn active" data-parts="9">9</button>
+                <button class="option-btn" data-parts="12">12</button>
+                <button class="option-btn" data-parts="15">15</button>
+                <button class="option-btn" data-parts="18">18</button>
+            </div>
+            
+            <div class="options-label">Режим</div>
+            <div class="options-group" id="modeGroup">
+                <button class="option-btn active" data-mode="cover">✂️ Обрезать</button>
+                <button class="option-btn" data-mode="contain">🖼 Вписать</button>
+            </div>
         </div>
 
         <div class="loading" id="loading">
@@ -209,14 +240,14 @@
         document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f4f4f5');
 
         let originalImage = null;
-        const defaultParts = 9;
 
         const imageLoader = document.getElementById('imageLoader');
         const uploadArea = document.getElementById('uploadArea');
         const imagePreview = document.getElementById('imagePreview');
         const previewImage = document.getElementById('previewImage');
-        const optionsGroup = document.getElementById('optionsGroup');
-        const modeBtns = document.querySelectorAll('.mode-btn');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const partsGroup = document.getElementById('partsGroup');
+        const modeGroup = document.getElementById('modeGroup');
         const previewGrid = document.getElementById('previewGrid');
         const status = document.getElementById('status');
         const loading = document.getElementById('loading');
@@ -242,14 +273,20 @@
             }
         });
         
-        modeBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                modeBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                if (originalImage) {
-                    updatePreview();
-                }
-            });
+        partsGroup.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                partsGroup.querySelector('.active').classList.remove('active');
+                e.target.classList.add('active');
+                if (originalImage) updatePreview();
+            }
+        });
+        
+        modeGroup.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                modeGroup.querySelector('.active').classList.remove('active');
+                e.target.classList.add('active');
+                if (originalImage) updatePreview();
+            }
         });
 
         function handleFileSelect(e) {
@@ -269,7 +306,7 @@
                     originalImage = img;
                     previewImage.src = event.target.result;
                     imagePreview.classList.add('visible');
-                    optionsGroup.classList.remove('hidden');
+                    optionsContainer.classList.add('visible');
                     infoBox.classList.add('hidden');
                     updatePreview();
                 };
@@ -296,8 +333,10 @@
             const PIECE_WIDTH = 1080;
             const PIECE_HEIGHT = 1342;
             const GRID_COLS = 3;
-            const GRID_ROWS = defaultParts / 3;
-            const fitMode = document.querySelector('.mode-btn.active').dataset.mode;
+            
+            const parts = parseInt(partsGroup.querySelector('.active').dataset.parts, 10);
+            const fitMode = modeGroup.querySelector('.active').dataset.mode;
+            const GRID_ROWS = parts / GRID_COLS;
             
             const totalContentWidth = PIECE_WIDTH * GRID_COLS;
             const totalContentHeight = PIECE_HEIGHT * GRID_ROWS;
@@ -319,7 +358,7 @@
                     drawWidth = totalContentWidth; drawHeight = drawWidth / imgAspect;
                     offsetX = 0; offsetY = (totalContentHeight - drawHeight) / 2;
                 }
-            } else { // contain
+            } else {
                 if (imgAspect > contentAspect) {
                     drawWidth = totalContentWidth; drawHeight = drawWidth / imgAspect;
                     offsetX = 0; offsetY = (totalContentHeight - drawHeight) / 2;
@@ -331,7 +370,7 @@
 
             sourceCtx.drawImage(originalImage, offsetX, offsetY, drawWidth, drawHeight);
 
-            previewGrid.style.gridTemplateColumns = `repeat(${GRID_COLS}, 1fr)`;
+            previewGrid.style.gridTemplateRows = `repeat(${GRID_ROWS}, 1fr)`;
 
             for (let row = 0; row < GRID_ROWS; row++) {
                 for (let col = 0; col < GRID_COLS; col++) {
@@ -364,7 +403,7 @@
 
             loading.classList.remove('visible');
             previewGrid.classList.remove('hidden');
-            status.textContent = `✅ Вот так будет выглядеть твоя сетка из ${defaultParts} частей!`;
+            status.textContent = `✅ Вот так будет выглядеть твоя сетка из ${parts} частей!`;
         }
     </script>
 </body>
