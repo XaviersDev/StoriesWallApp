@@ -69,35 +69,37 @@
 
         .upload-area.dragover {
             border-color: var(--tg-theme-button-color);
-            background: var(--tg-theme-button-color);
-            opacity: 0.1;
+            background-color: rgba(36, 129, 204, 0.1);
         }
 
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
+        .upload-icon { font-size: 48px; margin-bottom: 12px; }
+        .upload-text { font-size: 14px; color: var(--tg-theme-hint-color); font-weight: 500; }
+        .image-preview { width: 100%; border-radius: 12px; margin-bottom: 16px; display: none; }
+        .image-preview.visible { display: block; }
+        .image-preview img { width: 100%; border-radius: 12px; }
 
-        .upload-text {
-            font-size: 14px;
-            color: var(--tg-theme-hint-color);
-            font-weight: 500;
-        }
-
-        .image-preview {
-            width: 100%;
-            border-radius: 12px;
+        .options-group {
+            display: flex;
+            gap: 8px;
             margin-bottom: 16px;
-            display: none;
         }
-
-        .image-preview.visible {
-            display: block;
+        .options-group.hidden { display: none; }
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            border: 2px solid var(--tg-theme-secondary-bg-color);
+            background: var(--tg-theme-secondary-bg-color);
+            color: var(--tg-theme-hint-color);
+            cursor: pointer;
+            transition: all 0.2s;
         }
-
-        .image-preview img {
-            width: 100%;
-            border-radius: 12px;
+        .mode-btn.active {
+            border-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-color);
+            background: transparent;
         }
 
         .preview-grid {
@@ -109,11 +111,7 @@
             border-radius: 12px;
             margin-bottom: 16px;
         }
-
-        .preview-grid.hidden {
-            display: none;
-        }
-
+        .preview-grid.hidden { display: none; }
         .preview-cell {
             position: relative;
             padding-top: 124.26%;
@@ -121,7 +119,6 @@
             border-radius: 4px;
             overflow: hidden;
         }
-
         .preview-cell img {
             position: absolute;
             top: 0;
@@ -130,7 +127,6 @@
             height: 100%;
             object-fit: cover;
         }
-
         .preview-number {
             position: absolute;
             top: 4px;
@@ -142,29 +138,10 @@
             font-size: 11px;
             font-weight: 600;
         }
-
-        .status {
-            text-align: center;
-            font-size: 14px;
-            color: var(--tg-theme-hint-color);
-            margin: 16px 0;
-            min-height: 20px;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .loading.visible {
-            display: block;
-        }
-
+        .status { text-align: center; font-size: 14px; color: var(--tg-theme-hint-color); margin: 16px 0; min-height: 20px; }
+        input[type="file"] { display: none; }
+        .loading { display: none; text-align: center; padding: 20px; }
+        .loading.visible { display: block; }
         .spinner {
             border: 3px solid var(--tg-theme-secondary-bg-color);
             border-top: 3px solid var(--tg-theme-button-color);
@@ -174,24 +151,9 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 12px;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .info-box {
-            background: var(--tg-theme-secondary-bg-color);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 16px;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .info-box.hidden {
-            display: none;
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .info-box { background: var(--tg-theme-secondary-bg-color); border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 13px; line-height: 1.5; }
+        .info-box.hidden { display: none; }
     </style>
 </head>
 <body>
@@ -214,6 +176,11 @@
         <div class="image-preview" id="imagePreview">
             <img id="previewImage" src="" alt="Preview">
         </div>
+        
+        <div class="options-group hidden" id="optionsGroup">
+            <button class="mode-btn active" data-mode="cover">✂️ Обрезать</button>
+            <button class="mode-btn" data-mode="contain">🖼 Вписать</button>
+        </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
@@ -232,11 +199,8 @@
         tg.expand();
         tg.BackButton.show();
         
-        tg.BackButton.onClick(() => {
-            tg.close();
-        });
+        tg.BackButton.onClick(() => tg.close());
 
-        // Применяем тему
         document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#ffffff');
         document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#000000');
         document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#999999');
@@ -245,20 +209,20 @@
         document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f4f4f5');
 
         let originalImage = null;
-        const defaultParts = 9; // По умолчанию 9 частей
+        const defaultParts = 9;
 
         const imageLoader = document.getElementById('imageLoader');
         const uploadArea = document.getElementById('uploadArea');
         const imagePreview = document.getElementById('imagePreview');
         const previewImage = document.getElementById('previewImage');
+        const optionsGroup = document.getElementById('optionsGroup');
+        const modeBtns = document.querySelectorAll('.mode-btn');
         const previewGrid = document.getElementById('previewGrid');
         const status = document.getElementById('status');
         const loading = document.getElementById('loading');
         const infoBox = document.getElementById('infoBox');
 
-        // Upload handlers
         imageLoader.addEventListener('change', handleFileSelect);
-        uploadArea.addEventListener('click', () => imageLoader.click());
         
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -276,6 +240,16 @@
             if (file && file.type.startsWith('image/')) {
                 loadImage(file);
             }
+        });
+        
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                if (originalImage) {
+                    updatePreview();
+                }
+            });
         });
 
         function handleFileSelect(e) {
@@ -295,6 +269,7 @@
                     originalImage = img;
                     previewImage.src = event.target.result;
                     imagePreview.classList.add('visible');
+                    optionsGroup.classList.remove('hidden');
                     infoBox.classList.add('hidden');
                     updatePreview();
                 };
@@ -309,17 +284,20 @@
         }
 
         async function updatePreview() {
+            if (!originalImage) return;
+            
             status.textContent = 'Создаю предпросмотр...';
             loading.classList.add('visible');
             previewGrid.classList.add('hidden');
             previewGrid.innerHTML = '';
 
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 50));
 
             const PIECE_WIDTH = 1080;
             const PIECE_HEIGHT = 1342;
             const GRID_COLS = 3;
-            const GRID_ROWS = defaultParts / 3; // 3 ряда для 9 частей
+            const GRID_ROWS = defaultParts / 3;
+            const fitMode = document.querySelector('.mode-btn.active').dataset.mode;
             
             const totalContentWidth = PIECE_WIDTH * GRID_COLS;
             const totalContentHeight = PIECE_HEIGHT * GRID_ROWS;
@@ -332,18 +310,23 @@
             const imgAspect = originalImage.width / originalImage.height;
             const contentAspect = totalContentWidth / totalContentHeight;
             let drawWidth, drawHeight, offsetX, offsetY;
-
-            // Cover режим
-            if (imgAspect > contentAspect) {
-                drawHeight = totalContentHeight;
-                drawWidth = drawHeight * imgAspect;
-                offsetX = (totalContentWidth - drawWidth) / 2;
-                offsetY = 0;
-            } else {
-                drawWidth = totalContentWidth;
-                drawHeight = drawWidth / imgAspect;
-                offsetX = 0;
-                offsetY = (totalContentHeight - drawHeight) / 2;
+            
+            if (fitMode === 'cover') {
+                if (imgAspect > contentAspect) {
+                    drawHeight = totalContentHeight; drawWidth = drawHeight * imgAspect;
+                    offsetX = (totalContentWidth - drawWidth) / 2; offsetY = 0;
+                } else {
+                    drawWidth = totalContentWidth; drawHeight = drawWidth / imgAspect;
+                    offsetX = 0; offsetY = (totalContentHeight - drawHeight) / 2;
+                }
+            } else { // contain
+                if (imgAspect > contentAspect) {
+                    drawWidth = totalContentWidth; drawHeight = drawWidth / imgAspect;
+                    offsetX = 0; offsetY = (totalContentHeight - drawHeight) / 2;
+                } else {
+                    drawHeight = totalContentHeight; drawWidth = drawHeight * imgAspect;
+                    offsetX = (totalContentWidth - drawWidth) / 2; offsetY = 0;
+                }
             }
 
             sourceCtx.drawImage(originalImage, offsetX, offsetY, drawWidth, drawHeight);
@@ -364,7 +347,7 @@
                     );
 
                     const previewImg = document.createElement('img');
-                    previewImg.src = previewCanvas.toDataURL('image/jpeg', 0.7);
+                    previewImg.src = previewCanvas.toDataURL('image/jpeg', 0.8);
                     
                     const cell = document.createElement('div');
                     cell.className = 'preview-cell';
