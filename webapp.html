@@ -267,6 +267,24 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .debug {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            font-size: 10px;
+            max-height: 100px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .debug.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -373,11 +391,28 @@
         <div class="status" id="status">Выбери изображение для начала</div>
     </div>
 
+    <div class="debug" id="debug"></div>
+
     <script>
         const tg = window.Telegram.WebApp;
+        
+        // Функция для логирования
+        function log(message) {
+            console.log(message);
+            const debug = document.getElementById('debug');
+            debug.textContent += '\n' + new Date().toLocaleTimeString() + ': ' + message;
+            debug.classList.add('visible');
+        }
+
+        log('WebApp инициализирован');
+        
+        tg.ready();
         tg.expand();
         tg.MainButton.setText('Создать стенку');
         tg.MainButton.hide();
+
+        log('Telegram WebApp версия: ' + tg.version);
+        log('Платформа: ' + tg.platform);
 
         // Применяем тему
         document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#ffffff');
@@ -403,6 +438,7 @@
         // Preset buttons
         document.querySelectorAll('.preset-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                log('Выбран preset: ' + btn.dataset.parts + ' частей');
                 document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentParts = parseInt(btn.dataset.parts);
@@ -414,6 +450,7 @@
         // Fit selector
         document.querySelectorAll('.fit-option').forEach(opt => {
             opt.addEventListener('click', () => {
+                log('Выбран режим: ' + opt.dataset.fit);
                 document.querySelectorAll('.fit-option').forEach(o => o.classList.remove('active'));
                 opt.classList.add('active');
                 fitStyle = opt.dataset.fit;
@@ -446,7 +483,10 @@
 
         function handleFileSelect(e) {
             const file = e.target.files[0];
-            if (file) loadImage(file);
+            if (file) {
+                log('Выбран файл: ' + file.name + ', размер: ' + (file.size / 1024).toFixed(2) + 'KB');
+                loadImage(file);
+            }
         }
 
         function loadImage(file) {
@@ -454,8 +494,10 @@
             const reader = new FileReader();
             
             reader.onload = (event) => {
+                log('Файл загружен в base64');
                 const img = new Image();
                 img.onload = () => {
+                    log('Изображение декодировано: ' + img.width + 'x' + img.height);
                     originalImage = img;
                     imageDataUrl = event.target.result;
                     previewImage.src = event.target.result;
@@ -463,10 +505,15 @@
                     updatePreview();
                 };
                 img.onerror = () => {
+                    log('ОШИБКА: не удалось декодировать изображение');
                     status.textContent = 'Ошибка загрузки файла';
                     tg.showAlert('Не удалось загрузить изображение. Попробуй другой файл.');
                 };
                 img.src = event.target.result;
+            };
+            
+            reader.onerror = () => {
+                log('ОШИБКА: не удалось прочитать файл');
             };
             
             reader.readAsDataURL(file);
@@ -563,23 +610,55 @@
             previewGrid.classList.remove('hidden');
             status.textContent = `✅ Предпросмотр готов! ${currentParts} частей`;
             
+            log('Предпросмотр создан успешно');
+            
             tg.MainButton.setText(`Создать стенку (${currentParts} частей)`);
             tg.MainButton.show();
             tg.MainButton.enable();
         }
 
         tg.MainButton.onClick(() => {
-            if (!imageDataUrl) return;
+            log('Нажата кнопка "Создать стенку"');
+            
+            if (!imageDataUrl) {
+                log('ОШИБКА: нет данных изображения');
+                tg.showAlert('Сначала выбери изображение!');
+                return;
+            }
 
-            tg.sendData(JSON.stringify({
+            const data = {
                 action: 'create_wall',
                 parts: currentParts,
                 fit: fitStyle,
                 image: imageDataUrl
-            }));
+            };
 
-            tg.close();
+            log('Отправка данных боту...');
+            log('Размер данных: ' + JSON.stringify(data).length + ' символов');
+
+            try {
+                tg.sendData(JSON.stringify(data));
+                log('Данные отправлены успешно!');
+                
+                // Показываем уведомление
+                tg.showPopup({
+                    title: '✅ Отправлено!',
+                    message: 'Данные отправлены боту. Ожидай обработку...',
+                    buttons: [{type: 'ok'}]
+                }, () => {
+                    log('Закрытие WebApp...');
+                    // Закрываем через секунду
+                    setTimeout(() => {
+                        tg.close();
+                    }, 1000);
+                });
+            } catch (error) {
+                log('ОШИБКА при отправке: ' + error.message);
+                tg.showAlert('Ошибка отправки данных: ' + error.message);
+            }
         });
+
+        log('Скрипт загружен полностью');
     </script>
 </body>
 </html>
