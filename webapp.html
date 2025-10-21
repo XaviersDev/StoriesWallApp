@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Стили остаются без изменений, я их убрал для краткости */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root {
             --tg-theme-bg-color: #ffffff;
             --tg-theme-text-color: #000000;
@@ -19,38 +20,253 @@
             --tg-theme-button-text-color: #ffffff;
             --tg-theme-secondary-bg-color: #f4f4f5;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); margin: 0; padding: 0; }
-        .container { max-width: 100%; padding: 16px; padding-bottom: 80px; }
-        .header { text-align: center; margin-bottom: 24px; padding-top: 8px; }
-        .header h1 { font-size: 24px; font-weight: 700; }
-        .header p { font-size: 14px; color: var(--tg-theme-hint-color); }
-        .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
-        .preset-btn { background: var(--tg-theme-secondary-bg-color); border: 2px solid transparent; border-radius: 12px; padding: 12px 8px; cursor: pointer; transition: all 0.2s; position: relative; text-align: center;}
-        .preset-btn.active { border-color: var(--tg-theme-button-color); }
-        .preset-preview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-bottom: 8px; }
-        .preset-preview div { padding-top: 124.26%; background: var(--tg-theme-hint-color); opacity: 0.3; border-radius: 2px; }
-        .preset-btn.active .preset-preview div { background: var(--tg-theme-button-color); opacity: 1; }
-        .preset-label { font-size: 13px; font-weight: 600; color: var(--tg-theme-text-color); }
-        .fit-selector { background: var(--tg-theme-secondary-bg-color); border-radius: 12px; padding: 8px; margin-bottom: 16px; }
-        .fit-option { display: flex; align-items: center; padding: 8px; cursor: pointer; border-radius: 8px; }
-        .fit-option.active { background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); }
-        .fit-option input { margin-right: 12px; }
-        .upload-area { border: 2px dashed var(--tg-theme-hint-color); border-radius: 16px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; background: var(--tg-theme-secondary-bg-color); }
-        .upload-icon { font-size: 48px; margin-bottom: 12px; }
-        .upload-text { font-size: 15px; color: var(--tg-theme-hint-color); font-weight: 500; }
-        .image-preview { width: 100%; border-radius: 12px; margin-bottom: 16px; display: none; }
-        .image-preview.visible { display: block; }
-        .image-preview img { width: 100%; border-radius: 12px; }
-        .preview-grid { display: grid; gap: 4px; padding: 8px; background: var(--tg-theme-secondary-bg-color); border-radius: 12px; margin-bottom: 16px; }
-        .preview-grid.hidden { display: none; }
-        .preview-cell { position: relative; padding-top: 124.26%; background: var(--tg-theme-bg-color); border-radius: 4px; overflow: hidden; }
-        .preview-cell img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .status { text-align: center; font-size: 14px; color: var(--tg-theme-hint-color); margin: 16px 0; min-height: 20px; }
-        input[type="file"] { display: none; }
-        .loading { display: none; text-align: center; padding: 20px; }
-        .loading.visible { display: block; }
-        .spinner { border: 3px solid var(--tg-theme-secondary-bg-color); border-top: 3px solid var(--tg-theme-button-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 12px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-top: 8px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color);
+            line-height: 1.4;
+        }
+
+        .presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            background: var(--tg-theme-secondary-bg-color);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 12px 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .preset-btn.active {
+            border-color: var(--tg-theme-button-color);
+            background: var(--tg-theme-button-color);
+        }
+
+        .preset-btn.active .preset-label {
+            color: var(--tg-theme-button-text-color);
+        }
+
+        .preset-btn.locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 12px;
+        }
+
+        .preset-preview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            margin-bottom: 8px;
+        }
+
+        .preset-preview div {
+            padding-top: 124.26%;
+            background: var(--tg-theme-hint-color);
+            border-radius: 2px;
+            opacity: 0.3;
+        }
+
+        .preset-btn.active .preset-preview div {
+            background: var(--tg-theme-button-text-color);
+            opacity: 1;
+        }
+
+        .preset-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color);
+        }
+
+        .fit-selector {
+            background: var(--tg-theme-secondary-bg-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .fit-option {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 4px;
+        }
+
+        .fit-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .fit-option.active {
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+        }
+
+        .fit-option input {
+            margin-right: 12px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--tg-theme-hint-color);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+            background: var(--tg-theme-secondary-bg-color);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--tg-theme-button-color);
+            background: var(--tg-theme-button-color);
+            opacity: 0.1;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .upload-text {
+            font-size: 15px;
+            color: var(--tg-theme-hint-color);
+            font-weight: 500;
+        }
+
+        .image-preview {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .image-preview.visible {
+            display: block;
+        }
+
+        .image-preview img {
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            padding: 8px;
+            background: var(--tg-theme-secondary-bg-color);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .preview-grid.hidden {
+            display: none;
+        }
+
+        .preview-cell {
+            position: relative;
+            padding-top: 124.26%;
+            background: var(--tg-theme-bg-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .preview-cell img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-number {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 14px;
+            color: var(--tg-theme-hint-color);
+            margin: 16px 0;
+            min-height: 20px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.visible {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid var(--tg-theme-secondary-bg-color);
+            border-top: 3px solid var(--tg-theme-button-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -61,32 +277,67 @@
         </div>
 
         <div class="presets">
-            <button class="preset-btn" data-rows="1">
-                <div class="preset-preview" style="grid-template-rows: repeat(1, 1fr);"><div></div><div></div><div></div></div>
+            <button class="preset-btn" data-rows="1" data-parts="3">
+                <div class="preset-preview" style="grid-template-rows: repeat(1, 1fr);">
+                    <div></div><div></div><div></div>
+                </div>
                 <div class="preset-label">3 части</div>
             </button>
-            <button class="preset-btn" data-rows="2">
-                <div class="preset-preview" style="grid-template-rows: repeat(2, 1fr);"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <button class="preset-btn" data-rows="2" data-parts="6">
+                <div class="preset-preview" style="grid-template-rows: repeat(2, 1fr);">
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                </div>
                 <div class="preset-label">6 частей</div>
             </button>
-            <button class="preset-btn active" data-rows="3">
-                <div class="preset-preview" style="grid-template-rows: repeat(3, 1fr);"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <button class="preset-btn active" data-rows="3" data-parts="9">
+                <div class="preset-preview" style="grid-template-rows: repeat(3, 1fr);">
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                </div>
                 <div class="preset-label">9 частей</div>
             </button>
-            <button class="preset-btn" data-rows="4">
-                <div class="preset-preview" style="grid-template-rows: repeat(4, 1fr); gap: 1.5px;"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <button class="preset-btn" data-rows="4" data-parts="12">
+                <div class="preset-preview" style="grid-template-rows: repeat(4, 1fr); gap: 1.5px;">
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                </div>
                 <div class="preset-label">12 частей</div>
             </button>
-            <button class="preset-btn" data-rows="5">
-                 <div class="preset-preview" style="grid-template-rows: repeat(5, 1fr); gap: 1px;"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <button class="preset-btn" data-rows="5" data-parts="15">
+                <div class="preset-preview" style="grid-template-rows: repeat(5, 1fr); gap: 1px;">
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                </div>
                 <div class="preset-label">15 частей</div>
             </button>
-            <button class="preset-btn" data-rows="6">
-                <div class="preset-preview" style="grid-template-rows: repeat(6, 1fr); gap: 1px;"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <button class="preset-btn" data-rows="6" data-parts="18">
+                <div class="preset-preview" style="grid-template-rows: repeat(6, 1fr); gap: 1px;">
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                </div>
                 <div class="preset-label">18 частей</div>
             </button>
-             <button class="preset-btn" data-rows="7">
-                <div class="preset-preview" style="grid-template-rows: repeat(7, 1fr); gap: 0.8px;"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <button class="preset-btn locked" data-rows="7" data-parts="21" data-premium="true">
+                <div class="preset-preview" style="grid-template-rows: repeat(7, 1fr); gap: 0.8px;">
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                </div>
                 <div class="preset-label">21 часть</div>
             </button>
         </div>
@@ -111,22 +362,24 @@
         <div class="image-preview" id="imagePreview">
             <img id="previewImage" src="" alt="Preview">
         </div>
-        
+
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <div>Готовлю предпросмотр...</div>
         </div>
-        
+
         <div class="preview-grid hidden" id="previewGrid"></div>
+
         <div class="status" id="status">Выбери изображение для начала</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.MainButton.setText('Отправить боту');
+        tg.MainButton.setText('Создать стенку');
         tg.MainButton.hide();
 
+        // Применяем тему
         document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#ffffff');
         document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#000000');
         document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#999999');
@@ -135,9 +388,9 @@
         document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#f4f4f5');
 
         let originalImage = null;
-        let originalFile = null;
-        let currentGrid = { rows: 3, cols: 3 };
+        let currentParts = 9;
         let fitStyle = 'cover';
+        let imageDataUrl = null;
 
         const imageLoader = document.getElementById('imageLoader');
         const uploadArea = document.getElementById('uploadArea');
@@ -147,140 +400,185 @@
         const status = document.getElementById('status');
         const loading = document.getElementById('loading');
 
+        // Preset buttons
         document.querySelectorAll('.preset-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                currentGrid.rows = parseInt(btn.dataset.rows);
-                if (originalImage) generatePreview(originalImage);
+                currentParts = parseInt(btn.dataset.parts);
+                
+                if (originalImage) updatePreview();
             });
         });
 
+        // Fit selector
         document.querySelectorAll('.fit-option').forEach(opt => {
             opt.addEventListener('click', () => {
                 document.querySelectorAll('.fit-option').forEach(o => o.classList.remove('active'));
                 opt.classList.add('active');
                 fitStyle = opt.dataset.fit;
                 opt.querySelector('input').checked = true;
-                if (originalImage) generatePreview(originalImage);
+                if (originalImage) updatePreview();
             });
         });
 
-        imageLoader.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        // Upload handlers
+        imageLoader.addEventListener('change', handleFileSelect);
         uploadArea.addEventListener('click', () => imageLoader.click());
-        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); e.target.style.opacity = 0.5; });
-        uploadArea.addEventListener('dragleave', (e) => e.target.style.opacity = 1);
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            e.target.style.opacity = 1;
-            handleFile(e.dataTransfer.files[0]);
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                loadImage(file);
+            }
         });
 
-        function handleFile(file) {
-            if (!file || !file.type.startsWith('image/')) return;
-            originalFile = file;
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) loadImage(file);
+        }
+
+        function loadImage(file) {
+            status.textContent = 'Загрузка изображения...';
             const reader = new FileReader();
+            
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
                     originalImage = img;
+                    imageDataUrl = event.target.result;
                     previewImage.src = event.target.result;
                     imagePreview.classList.add('visible');
-                    generatePreview(img);
+                    updatePreview();
+                };
+                img.onerror = () => {
+                    status.textContent = 'Ошибка загрузки файла';
+                    tg.showAlert('Не удалось загрузить изображение. Попробуй другой файл.');
                 };
                 img.src = event.target.result;
             };
+            
             reader.readAsDataURL(file);
         }
 
-        async function generatePreview(img) {
-            status.textContent = 'Обработка предпросмотра...';
+        async function updatePreview() {
+            status.textContent = 'Создаю предпросмотр...';
             loading.classList.add('visible');
             previewGrid.classList.add('hidden');
             previewGrid.innerHTML = '';
             tg.MainButton.hide();
 
-            await new Promise(resolve => setTimeout(resolve, 50)); // Даем UI обновиться
+            await new Promise(resolve => setTimeout(resolve, 100));
 
-            const PIECE_ASPECT = 1080 / 1342;
-            const GRID_COLS = currentGrid.cols;
-            const GRID_ROWS = currentGrid.rows;
-
-            const totalContentWidth = GRID_COLS;
-            const totalContentHeight = GRID_ROWS * (1/PIECE_ASPECT);
+            const PIECE_WIDTH = 1080;
+            const PIECE_HEIGHT = 1342;
+            const GRID_COLS = 3;
+            const GRID_ROWS = currentParts / 3;
+            
+            const totalContentWidth = PIECE_WIDTH * GRID_COLS;
+            const totalContentHeight = PIECE_HEIGHT * GRID_ROWS;
 
             const sourceCanvas = document.createElement('canvas');
+            sourceCanvas.width = totalContentWidth;
+            sourceCanvas.height = totalContentHeight;
             const sourceCtx = sourceCanvas.getContext('2d');
-            sourceCanvas.width = img.width;
-            sourceCanvas.height = img.height;
-            sourceCtx.drawImage(img, 0, 0);
+
+            const imgAspect = originalImage.width / originalImage.height;
+            const contentAspect = totalContentWidth / totalContentHeight;
+            let drawWidth, drawHeight, offsetX, offsetY;
+
+            if (fitStyle === 'cover') {
+                if (imgAspect > contentAspect) {
+                    drawHeight = totalContentHeight;
+                    drawWidth = drawHeight * imgAspect;
+                    offsetX = (totalContentWidth - drawWidth) / 2;
+                    offsetY = 0;
+                } else {
+                    drawWidth = totalContentWidth;
+                    drawHeight = drawWidth / imgAspect;
+                    offsetX = 0;
+                    offsetY = (totalContentHeight - drawHeight) / 2;
+                }
+            } else {
+                if (imgAspect > contentAspect) {
+                    drawWidth = totalContentWidth;
+                    drawHeight = drawWidth / imgAspect;
+                    offsetX = 0;
+                    offsetY = (totalContentHeight - drawHeight) / 2;
+                } else {
+                    drawHeight = totalContentHeight;
+                    drawWidth = drawHeight * imgAspect;
+                    offsetX = (totalContentWidth - drawWidth) / 2;
+                    offsetY = 0;
+                }
+                sourceCtx.fillStyle = '#000000';
+                sourceCtx.fillRect(0, 0, totalContentWidth, totalContentHeight);
+            }
+
+            sourceCtx.drawImage(originalImage, offsetX, offsetY, drawWidth, drawHeight);
 
             previewGrid.style.gridTemplateColumns = `repeat(${GRID_COLS}, 1fr)`;
-            
+
             for (let row = 0; row < GRID_ROWS; row++) {
                 for (let col = 0; col < GRID_COLS; col++) {
+                    const sx = col * PIECE_WIDTH;
+                    const sy = row * PIECE_HEIGHT;
+
+                    const previewCanvas = document.createElement('canvas');
+                    previewCanvas.width = PIECE_WIDTH;
+                    previewCanvas.height = PIECE_HEIGHT;
+                    previewCanvas.getContext('2d').drawImage(
+                        sourceCanvas, sx, sy, PIECE_WIDTH, PIECE_HEIGHT,
+                        0, 0, PIECE_WIDTH, PIECE_HEIGHT
+                    );
+
+                    const previewImg = document.createElement('img');
+                    previewImg.src = previewCanvas.toDataURL('image/jpeg', 0.7);
+                    
                     const cell = document.createElement('div');
                     cell.className = 'preview-cell';
-                    const previewImg = document.createElement('img');
                     
-                    // Это упрощенный рендер для превью, логика обрезки на сервере будет точнее
-                    const sx = (img.width / GRID_COLS) * col;
-                    const sy = (img.height / GRID_ROWS) * row;
-                    const sWidth = img.width / GRID_COLS;
-                    const sHeight = img.height / GRID_ROWS;
-                    
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = sWidth;
-                    tempCanvas.height = sHeight;
-                    tempCanvas.getContext('2d').drawImage(sourceCanvas, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
-                    previewImg.src = tempCanvas.toDataURL();
+                    const number = document.createElement('div');
+                    number.className = 'preview-number';
+                    number.textContent = (row * GRID_COLS + col + 1);
                     
                     cell.appendChild(previewImg);
+                    cell.appendChild(number);
                     previewGrid.appendChild(cell);
                 }
             }
-            
+
             loading.classList.remove('visible');
             previewGrid.classList.remove('hidden');
-            status.textContent = `Предпросмотр для ${GRID_ROWS * GRID_COLS} частей`;
+            status.textContent = `✅ Предпросмотр готов! ${currentParts} частей`;
             
-            tg.MainButton.setText(`Создать (${GRID_ROWS * GRID_COLS} частей)`);
+            tg.MainButton.setText(`Создать стенку (${currentParts} частей)`);
             tg.MainButton.show();
+            tg.MainButton.enable();
         }
 
         tg.MainButton.onClick(() => {
-            if (!originalFile) {
-                tg.showAlert('Сначала выбери изображение!');
-                return;
-            }
+            if (!imageDataUrl) return;
 
-            tg.MainButton.showProgress();
-            status.textContent = 'Отправка в бота...';
+            tg.sendData(JSON.stringify({
+                action: 'create_wall',
+                parts: currentParts,
+                fit: fitStyle,
+                image: imageDataUrl
+            }));
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const data = {
-                    action: "create_wall",
-                    image_b64: event.target.result, // base64 data URL
-                    parts: currentGrid.rows * currentGrid.cols,
-                    fit: fitStyle
-                };
-                
-                try {
-                    tg.sendData(JSON.stringify(data));
-                    // Бот должен закрыть Web App после получения данных
-                    // или можно закрыть его здесь через некоторое время.
-                    // tg.close();
-                } catch (error) {
-                    tg.showAlert(`Ошибка отправки данных: ${error}`);
-                    tg.MainButton.hideProgress();
-                }
-            };
-            reader.onerror = () => {
-                tg.showAlert('Не удалось прочитать файл для отправки.');
-                tg.MainButton.hideProgress();
-            }
-            reader.readAsDataURL(originalFile);
+            tg.close();
         });
     </script>
 </body>
