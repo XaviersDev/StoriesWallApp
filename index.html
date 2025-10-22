@@ -351,13 +351,10 @@
             mainContent.classList.add('hidden');
             uploadArea.classList.remove('hidden');
             tgHelpIcon.classList.add('hidden');
-
             originalImage = null;
             generatedBlobs = [];
             imageLoader.value = null;
-
             previewGrid.innerHTML = '';
-            
             partsSlider.value = 9;
             partsValue.textContent = '9';
             modeGroup.querySelector('.active').classList.remove('active');
@@ -367,7 +364,9 @@
         resetBtn.addEventListener('click', resetApp);
 
         // --- Main App Logic ---
-        uploadArea.addEventListener('click', () => imageLoader.click());
+        // FIX: Removed redundant click listener to prevent double-opening the file dialog.
+        // The <label> element handles this natively.
+        // uploadArea.addEventListener('click', () => imageLoader.click());
         imageLoader.addEventListener('change', handleFileSelect);
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => uploadArea.addEventListener(e, preventDefaults, false));
