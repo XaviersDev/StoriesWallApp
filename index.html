@@ -38,6 +38,8 @@
             max-width: 500px;
             margin: 0 auto;
             padding: 24px 16px 100px 16px;
+            position: relative; /* Добавлено для корректного z-index */
+            z-index: 10;
         }
 
         .header { text-align: center; margin-bottom: 32px; }
@@ -189,9 +191,81 @@
 
         footer { text-align: center; margin-top: 40px; font-size: 13px; color: var(--hint-color); }
         footer a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+
+        /* --- Стили для плавающих хэштегов --- */
+        #floating-hashtags-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none; /* Чтобы не мешали кликать по элементам */
+            z-index: 1; /* Ниже основного контента, но выше фона */
+        }
+        
+        .floating-hashtag {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background-color: rgba(30, 30, 30, 0.5); /* Полупрозрачный фон */
+            backdrop-filter: blur(3px); /* Эффект размытия */
+            color: var(--hint-color);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            opacity: 0; /* Начинаем с невидимости */
+            animation: floatAnimation 20s ease-in-out infinite;
+            will-change: transform, opacity; /* Оптимизация для анимации */
+        }
+        
+        .floating-hashtag .tg-icon {
+            width: 16px;
+            height: 16px;
+        }
+        .floating-hashtag .tg-icon svg{
+            fill: var(--primary-color);
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        @keyframes floatAnimation {
+            0% {
+                transform: translateY(20px) translateX(0px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            25% {
+                transform: translateY(-15px) translateX(20px) rotate(5deg);
+            }
+            50% {
+                transform: translateY(10px) translateX(-15px) rotate(-3deg);
+            }
+            75% {
+                transform: translateY(-20px) translateX(10px) rotate(2deg);
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(20px) translateX(0px) rotate(0deg);
+                opacity: 0;
+            }
+        }
+        /* --- Конец стилей для хэштегов --- */
+
     </style>
 </head>
 <body>
+
+    <!-- Контейнер для хэштегов -->
+    <div id="floating-hashtags-container"></div>
 
     <div class="modal-overlay" id="tgCheckModal">
         <div class="modal-content">
@@ -364,9 +438,6 @@
         resetBtn.addEventListener('click', resetApp);
 
         // --- Main App Logic ---
-        // FIX: Removed redundant click listener to prevent double-opening the file dialog.
-        // The <label> element handles this natively.
-        // uploadArea.addEventListener('click', () => imageLoader.click());
         imageLoader.addEventListener('change', handleFileSelect);
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => uploadArea.addEventListener(e, preventDefaults, false));
@@ -536,6 +607,39 @@
 
             hideLoader();
         }
+    </script>
+    
+    <!-- Скрипт для создания плавающих хэштегов -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('floating-hashtags-container');
+            if (!container) return;
+
+            const hashtagCount = 7; // Количество хэштегов на экране
+            const text = '@storieswall_bot';
+            const tgIconSvg = `<span class="tg-icon"><svg viewBox="0 0 24 24"><path d="M15 12l-4-4l-4 8l10-4zM22 2L2 9l6 3l3 6l9-16z"/></svg></span>`;
+
+            for (let i = 0; i < hashtagCount; i++) {
+                const hashtag = document.createElement('div');
+                hashtag.className = 'floating-hashtag';
+                hashtag.innerHTML = tgIconSvg + text;
+
+                // Случайные значения для каждого элемента
+                const top = Math.random() * 100;
+                const left = Math.random() * 100;
+                const duration = 15 + Math.random() * 10; // от 15 до 25 секунд
+                const delay = Math.random() * 15; // задержка до 15 секунд
+                const scale = 0.8 + Math.random() * 0.4; // размер от 80% до 120%
+
+                hashtag.style.top = `${top}%`;
+                hashtag.style.left = `${left}%`;
+                hashtag.style.animationDuration = `${duration}s`;
+                hashtag.style.animationDelay = `${delay}s`;
+                hashtag.style.transform = `scale(${scale})`;
+                
+                container.appendChild(hashtag);
+            }
+        });
     </script>
 </body>
 </html>
