@@ -61,6 +61,15 @@
 
         .image-preview-small { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
         .image-preview-small img { width: 100%; display: block; }
+
+        .reset-container { text-align: center; margin-top: -12px; }
+        #resetBtn {
+            background: transparent; border: 1px solid var(--border-color); color: var(--hint-color);
+            padding: 8px 16px; border-radius: 10px; font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        #resetBtn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        #resetBtn .material-symbols-outlined { font-size: 18px; }
         
         .controls-card {
             background-color: var(--surface-color); border-radius: 16px;
@@ -199,7 +208,7 @@
     <div class="modal-overlay hidden" id="tgInfoModal">
         <div class="modal-content">
             <span class="material-symbols-outlined">open_in_new</span>
-            <h2>Как открыть в браузере?</h2>
+            <h2>Как открыть в браузere?</h2>
             <p>
                 Скачивание файлов не работает внутри Telegram. Чтобы всё получилось, пожалуйста, 
                 нажмите на <b>три точки (⋮)</b> в правом верхнем углу и выберите <b>"Открыть в браузере"</b>.
@@ -230,6 +239,13 @@
         <main id="mainContent" class="hidden">
             <div class="image-preview-small">
                 <img id="previewImage" src="" alt="Uploaded image preview">
+            </div>
+            
+            <div class="reset-container">
+                <button id="resetBtn">
+                    <span class="material-symbols-outlined">restart_alt</span>
+                    Выбрать другое изображение
+                </button>
             </div>
 
             <div class="controls-card">
@@ -302,6 +318,7 @@
         const imageLoader = document.getElementById('imageLoader');
         const mainContent = document.getElementById('mainContent');
         const previewImage = document.getElementById('previewImage');
+        const resetBtn = document.getElementById('resetBtn');
         const partsSlider = document.getElementById('partsSlider');
         const partsValue = document.getElementById('partsValue');
         const templatesGroup = document.getElementById('templatesGroup');
@@ -320,22 +337,34 @@
             tgCheckModal.classList.add('hidden');
             appContainer.style.visibility = 'visible';
         });
-
         isInsideTgBtn.addEventListener('click', () => {
-            const modalContent = tgCheckModal.querySelector('.modal-content');
-            modalContent.innerHTML = `
+            tgCheckModal.querySelector('.modal-content').innerHTML = `
                 <span class="material-symbols-outlined">open_in_new</span>
                 <h2>Нужно открыть в браузере!</h2>
-                <p>
-                    Скачивание файлов не работает внутри Telegram. Чтобы всё получилось, пожалуйста, 
-                    нажмите на <b>три точки (⋮)</b> вверху и выберите <b>"Открыть в браузере"</b>.
-                </p>
-            `;
+                <p>Скачивание файлов не работает внутри Telegram. Чтобы всё получилось, пожалуйста, нажмите на <b>три точки (⋮)</b> вверху и выберите <b>"Открыть в браузере"</b>.</p>`;
         });
-        
         tgHelpIcon.addEventListener('click', () => tgInfoModal.classList.remove('hidden'));
         closeInfoModalBtn.addEventListener('click', () => tgInfoModal.classList.add('hidden'));
 
+        // --- App Reset Functionality ---
+        function resetApp() {
+            mainContent.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+            tgHelpIcon.classList.add('hidden');
+
+            originalImage = null;
+            generatedBlobs = [];
+            imageLoader.value = null;
+
+            previewGrid.innerHTML = '';
+            
+            partsSlider.value = 9;
+            partsValue.textContent = '9';
+            modeGroup.querySelector('.active').classList.remove('active');
+            modeGroup.querySelector('[data-mode="cover"]').classList.add('active');
+            downloadBtn.disabled = true;
+        }
+        resetBtn.addEventListener('click', resetApp);
 
         // --- Main App Logic ---
         uploadArea.addEventListener('click', () => imageLoader.click());
@@ -354,7 +383,7 @@
                 const parts = e.target.dataset.parts;
                 partsSlider.value = parts;
                 partsValue.textContent = parts;
-                partsSlider.dispatchEvent(new Event('change')); // Trigger preview regeneration
+                generatePreview();
             }
         });
 
@@ -391,7 +420,7 @@
                     previewImage.src = e.target.result;
                     uploadArea.classList.add('hidden');
                     mainContent.classList.remove('hidden');
-                    tgHelpIcon.classList.remove('hidden'); // Show help icon after upload
+                    tgHelpIcon.classList.remove('hidden');
                     generatePreview();
                 };
                 img.onerror = () => {
@@ -399,7 +428,6 @@
                     hideLoader();
                 };
                 img.src = e.target.result;
-                // FIX: Reset input value to allow re-uploading the same file
                 imageLoader.value = null; 
             };
             reader.readAsDataURL(file);
