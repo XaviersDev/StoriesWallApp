@@ -280,6 +280,21 @@
             75% { transform: translateY(-20px) translateX(10px) rotate(2deg); } 90% { opacity: 0.7; }
             100% { transform: translateY(20px) translateX(0px) rotate(0deg); opacity: 0; }
         }
+        /* === MOBILE FIXES START === */
+        @media screen and (max-width: 550px) {
+            .mode-buttons-wrapper {
+                flex-direction: column;
+                align-items: stretch; /* Делаем дочерние элементы одинаковой ширины */
+                gap: 16px;
+            }
+
+            #editorContainer {
+                width: 90%; /* Уменьшаем ширину редактора */
+                margin-left: auto;
+                margin-right: auto; /* И центрируем его */
+            }
+        }
+        /* === MOBILE FIXES END === */
     </style>
 </head>
 <body>
