@@ -516,6 +516,9 @@
             }
 
             function handleMove(e) {
+                if (!editorState.isDragging && editorState.activeHandle === null) {
+                    return;
+                }
                 e.preventDefault(); const pos = getMousePos(e);
                 const dx = pos.x - editorState.startX; const dy = pos.y - editorState.startY;
                 if (editorState.isDragging) {
