@@ -256,25 +256,21 @@
                 return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             }
             
+            /**
+             * Проверяет, запущен ли сайт внутри Telegram И на мобильном устройстве.
+             * @returns {boolean}
+             */
             function isInsideTelegram() {
+                // Проверяем User Agent
                 const ua = navigator.userAgent.toLowerCase();
                 
-                console.log('=== DEBUG ===');
+                // Debug: выводим в консоль для проверки
                 console.log('User Agent:', navigator.userAgent);
-                console.log('Is Mobile:', isMobileDevice());
+                console.log('Contains telegram:', ua.includes('telegram'));
+                console.log('Is mobile:', isMobileDevice());
                 
-                // Проверяем разные варианты Telegram User Agent
-                const telegramPatterns = [
-                    'telegram',           // Android Telegram
-                    'tgios',             // iOS Telegram (старые версии)
-                    'telegram messenger' // Полное название
-                ];
-                
-                const isTelegram = telegramPatterns.some(pattern => ua.includes(pattern));
-                
-                console.log('Is Telegram:', isTelegram);
-                console.log('Show overlay:', isTelegram && isMobileDevice());
-                console.log('=============');
+                // Telegram добавляет слово "telegram" в User Agent
+                const isTelegram = ua.includes('telegram');
                 
                 return isTelegram && isMobileDevice();
             }
