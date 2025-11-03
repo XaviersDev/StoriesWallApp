@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -11,7 +13,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
         :root {
@@ -42,181 +43,310 @@
             position: relative;
             z-index: 10;
         }
-        
-        /* === СТИЛИ ДЛЯ БЛОКИРУЮЩЕГО ОКНА (МИНИМАЛИЗМ) === */
-        #tg-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            text-align: center;
-        }
-        .tg-overlay-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            max-width: 380px;
-        }
-        .tg-overlay-content .material-symbols-outlined {
-            font-size: 64px;
-            color: var(--primary-color); /* Простой цвет, без градиента */
-        }
-        .tg-overlay-content h2 {
-            font-size: 24px;
-            font-weight: 700;
-            color: #fff;
-        }
-        .tg-overlay-content p {
-            font-size: 16px;
-            color: var(--hint-color);
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-        #forceOpenInBrowserBtn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            padding: 16px;
-            font-size: 18px;
-            font-weight: 700;
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
-            background: var(--primary-color); /* Простой цвет, без градиента */
-        }
-        #forceOpenInBrowserBtn:hover {
-            opacity: 0.9;
-            transform: scale(1.03);
-        }
-        /* === КОНЕЦ СТИЛЕЙ === */
-        
-        .hidden { display: none !important; }
+
         .header { text-align: center; margin-bottom: 32px; }
         .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
         .header p { font-size: 15px; color: var(--hint-color); line-height: 1.5; }
+        
         #initialChoice { display: flex; flex-direction: column; gap: 16px; }
-        .choice-btn { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; padding: 24px; border-radius: 16px; border: 2px solid var(--border-color); background-color: var(--surface-color); cursor: pointer; transition: all 0.2s ease-in-out; text-align: center; }
+        .choice-btn {
+            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px;
+            padding: 24px; border-radius: 16px; border: 2px solid var(--border-color);
+            background-color: var(--surface-color); cursor: pointer; transition: all 0.2s ease-in-out;
+            text-align: center;
+        }
         .choice-btn:hover { border-color: var(--primary-color); background-color: #2a2a2a; }
         .choice-btn .material-symbols-outlined { font-size: 48px; color: var(--primary-color); }
-        .choice-btn.magic .material-symbols-outlined { background: linear-gradient(45deg, var(--magic-grad-start), var(--magic-grad-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .choice-btn.magic .material-symbols-outlined {
+            background: linear-gradient(45deg, var(--magic-grad-start), var(--magic-grad-end));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
         .choice-btn h2 { font-size: 18px; font-weight: 600; color: var(--text-color); }
         .choice-btn p { font-size: 13px; color: var(--hint-color); line-height: 1.4; }
-        .upload-area { display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px dashed var(--border-color); border-radius: 16px; padding: 60px 20px; text-align: center; cursor: pointer; transition: all 0.2s ease-in-out; background-color: var(--surface-color); }
+
+        .upload-area {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            border: 2px dashed var(--border-color); border-radius: 16px;
+            padding: 60px 20px; text-align: center; cursor: pointer;
+            transition: all 0.2s ease-in-out; background-color: var(--surface-color);
+        }
         .upload-area:hover, .upload-area.dragover { border-color: var(--primary-color); background-color: #2a2a2a; }
         .upload-area .material-symbols-outlined { font-size: 56px; color: var(--primary-color); margin-bottom: 16px; }
         .upload-text { font-size: 16px; font-weight: 500; color: var(--text-color); }
         .upload-hint { font-size: 13px; color: var(--hint-color); margin-top: 8px; }
         #imageLoader { display: none; }
+
         #templateGeneratorArea { display: flex; flex-direction: column; gap: 16px; padding: 20px; border-radius: 16px; background-color: var(--surface-color); border: 1px solid var(--border-color); }
-        #templateTextInput { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); font-size: 16px; font-weight: 500; outline: none; transition: border-color 0.2s; }
+        #templateTextInput {
+            width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);
+            background-color: var(--bg-color); color: var(--text-color);
+            font-size: 16px; font-weight: 500; outline: none; transition: border-color 0.2s;
+        }
         #templateTextInput::placeholder { color: var(--hint-color); }
         #templateTextInput:focus { border-color: var(--primary-color); }
-        #generateTemplateBtn { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 16px; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; color: #fff; cursor: pointer; transition: all 0.2s; background: linear-gradient(45deg, var(--magic-grad-start), var(--magic-grad-end)); background-size: 200% 200%; animation: gradient-animation 4s ease infinite; }
+        #generateTemplateBtn {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; padding: 16px; font-size: 16px; font-weight: 700;
+            border: none; border-radius: 12px; color: #fff; cursor: pointer; transition: all 0.2s;
+            background: linear-gradient(45deg, var(--magic-grad-start), var(--magic-grad-end));
+            background-size: 200% 200%; animation: gradient-animation 4s ease infinite;
+        }
         @keyframes gradient-animation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         #generateTemplateBtn:hover { transform: scale(1.02); }
         #generateTemplateBtn .material-symbols-outlined { font-size: 22px; }
+        
         #mainContent { display: flex; flex-direction: column; gap: 24px; }
+        .hidden { display: none !important; }
+
         .image-preview-small { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); }
         .image-preview-small img { width: 100%; display: block; }
+
         .reset-container { text-align: center; margin-top: -12px; }
-        #resetBtn { background: transparent; border: 1px solid var(--border-color); color: var(--hint-color); padding: 8px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        #resetBtn {
+            background: transparent; border: 1px solid var(--border-color); color: var(--hint-color);
+            padding: 8px 16px; border-radius: 10px; font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        }
         #resetBtn:hover { border-color: var(--primary-color); color: var(--primary-color); }
         #resetBtn .material-symbols-outlined { font-size: 18px; }
-        .controls-card { background-color: var(--surface-color); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 24px; }
+        
+        .controls-card {
+            background-color: var(--surface-color); border-radius: 16px;
+            padding: 20px; border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; gap: 24px;
+        }
         .control-group { display: flex; flex-direction: column; gap: 12px; }
-        .control-label { display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 500; color: var(--hint-color); }
+        
+        .control-label {
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 14px; font-weight: 500; color: var(--hint-color);
+        }
         .control-label .material-symbols-outlined { font-size: 20px; margin-right: 8px; }
-        #partsValue { font-size: 16px; font-weight: 600; color: var(--text-color); background-color: var(--bg-color); padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border-color); }
-        #partsSlider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; background: var(--border-color); border-radius: 3px; outline: none; }
-        #partsSlider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; background: var(--primary-color); cursor: pointer; border-radius: 50%; border: 4px solid var(--surface-color); }
-        #partsSlider::-moz-range-thumb { width: 22px; height: 22px; background: var(--primary-color); cursor: pointer; border-radius: 50%; border: 4px solid var(--surface-color); }
+        #partsValue {
+            font-size: 16px; font-weight: 600; color: var(--text-color);
+            background-color: var(--bg-color); padding: 4px 10px;
+            border-radius: 8px; border: 1px solid var(--border-color);
+        }
+        
+        #partsSlider {
+            -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+            background: var(--border-color); border-radius: 3px; outline: none;
+        }
+        #partsSlider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 22px; height: 22px;
+            background: var(--primary-color); cursor: pointer; border-radius: 50%;
+            border: 4px solid var(--surface-color);
+        }
+        #partsSlider::-moz-range-thumb {
+            width: 22px; height: 22px; background: var(--primary-color); cursor: pointer;
+            border-radius: 50%; border: 4px solid var(--surface-color);
+        }
+        
         .templates-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .template-btn { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--hint-color); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .template-btn {
+            background: var(--bg-color); border: 1px solid var(--border-color);
+            color: var(--hint-color); padding: 6px 12px; border-radius: 8px;
+            font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+        }
         .template-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
         .mode-buttons-wrapper { display: flex; align-items: center; gap: 12px; }
         .mode-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; flex-grow: 1; }
-        .mode-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; font-size: 14px; font-weight: 600; border-radius: 10px; border: 2px solid var(--border-color); background: transparent; color: var(--hint-color); cursor: pointer; transition: all 0.2s; position: relative; }
+        .mode-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px; font-size: 14px; font-weight: 600; border-radius: 10px;
+            border: 2px solid var(--border-color); background: transparent; color: var(--hint-color);
+            cursor: pointer; transition: all 0.2s; position: relative;
+        }
         .mode-btn.active { border-color: var(--primary-color); color: var(--primary-color); background: rgba(74, 144, 226, 0.1); }
-        .mode-btn.magic-outline.active { color: #e0e0e0; border: 2px solid transparent; background: linear-gradient(var(--surface-color), var(--surface-color)) padding-box, linear-gradient(45deg, var(--magic-grad-start), var(--magic-grad-end)) border-box; box-shadow: 0 0 12px rgba(138, 43, 226, 0.5), 0 0 20px rgba(0, 198, 255, 0.3); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 12px rgba(138, 43, 226, 0.5), 0 0 20px rgba(0, 198, 255, 0.3); } 50% { box-shadow: 0 0 16px rgba(138, 43, 226, 0.7), 0 0 28px rgba(0, 198, 255, 0.4); } 100% { box-shadow: 0 0 12px rgba(138, 43, 226, 0.5), 0 0 20px rgba(0, 198, 255, 0.3); } }
+        .mode-btn.magic-outline.active {
+            color: #e0e0e0;
+            border: 2px solid transparent;
+            background: linear-gradient(var(--surface-color), var(--surface-color)) padding-box,
+                        linear-gradient(45deg, var(--magic-grad-start), var(--magic-grad-end)) border-box;
+            box-shadow: 0 0 12px rgba(138, 43, 226, 0.5), 0 0 20px rgba(0, 198, 255, 0.3);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 12px rgba(138, 43, 226, 0.5), 0 0 20px rgba(0, 198, 255, 0.3); }
+            50% { box-shadow: 0 0 16px rgba(138, 43, 226, 0.7), 0 0 28px rgba(0, 198, 255, 0.4); }
+            100% { box-shadow: 0 0 12px rgba(138, 43, 226, 0.5), 0 0 20px rgba(0, 198, 255, 0.3); }
+        }
         .mode-btn .material-symbols-outlined { font-size: 20px; }
-        #resetEditorBtn { background: transparent; border: 2px solid var(--border-color); color: var(--hint-color); min-width: 46px; height: 46px; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; }
+        
+        #resetEditorBtn {
+             background: transparent; border: 2px solid var(--border-color); color: var(--hint-color);
+             min-width: 46px; height: 46px; border-radius: 10px;
+             cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center;
+        }
         #resetEditorBtn:hover { border-color: var(--primary-color); color: var(--primary-color); }
-        #previewGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); background-color: var(--bg-color); }
-        .preview-cell { position: relative; padding-top: 124.26%; background: var(--surface-color); overflow: hidden; }
+        
+        #previewGrid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+            border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+        }
+        .preview-cell {
+            position: relative; padding-top: 124.26%;
+            background: var(--surface-color); overflow: hidden;
+        }
         .preview-cell img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        #editorContainer { border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); position: relative; background-color: var(--surface-color); }
+
+        #editorContainer {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            position: relative;
+            background-color: var(--surface-color);
+        }
         #editorCanvas { width: 100%; height: auto; display: block; cursor: grab; }
-        #downloadBtn { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 16px; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; background-color: var(--primary-color); color: #fff; cursor: pointer; transition: all 0.2s; }
+
+        #downloadBtn {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; padding: 16px; font-size: 16px; font-weight: 700;
+            border: none; border-radius: 12px; background-color: var(--primary-color);
+            color: #fff; cursor: pointer; transition: all 0.2s;
+        }
         #downloadBtn:disabled { background-color: var(--border-color); color: var(--hint-color); cursor: not-allowed; }
         #downloadBtn:not(:disabled):hover { opacity: 0.9; }
         #downloadBtn .material-symbols-outlined { font-size: 22px; }
-        .loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 999; color: white; text-align: center; padding: 20px; }
-        .spinner { border: 4px solid rgba(255, 255, 255, 0.2); border-top: 4px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        
+        .loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 999; color: white; text-align: center; padding: 20px;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2); border-top: 4px solid var(--primary-color);
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .loader p { margin-top: 20px; font-size: 16px; font-weight: 500; }
         .loader .loader-hint { font-size: 13px; color: var(--hint-color); margin-top: 12px; line-height: 1.5;}
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-        .modal-content { background: var(--surface-color); border-radius: 16px; padding: 24px; text-align: center; max-width: 380px; border: 1px solid var(--border-color); }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; padding: 20px;
+        }
+        .modal-content {
+            background: var(--surface-color); border-radius: 16px;
+            padding: 24px; text-align: center; max-width: 380px;
+            border: 1px solid var(--border-color);
+        }
         .modal-content h2 { font-size: 20px; margin-bottom: 12px; }
         .modal-content p { color: var(--hint-color); line-height: 1.6; font-size: 15px; margin-bottom: 24px; }
         .modal-content .material-symbols-outlined { font-size: 48px; color: var(--primary-color); margin-bottom: 16px; }
         .modal-buttons { display: flex; flex-direction: column; gap: 12px; }
-        .modal-btn { padding: 14px; border-radius: 10px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+        .modal-btn {
+            padding: 14px; border-radius: 10px; border: none; font-size: 16px;
+            font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+        }
         .modal-btn:hover { opacity: 0.9; }
         .primary { background-color: var(--primary-color); color: white; }
         .secondary { background-color: var(--border-color); color: var(--text-color); }
+
+        #tgHelpIcon {
+            position: fixed; top: 16px; right: 16px;
+            width: 40px; height: 40px; background-color: rgba(30, 30, 30, 0.8);
+            backdrop-filter: blur(5px); border-radius: 50%; display: flex;
+            justify-content: center; align-items: center; cursor: pointer;
+            z-index: 900; border: 1px solid var(--border-color);
+        }
+        #tgHelpIcon .material-symbols-outlined { color: var(--primary-color); }
+
         footer { text-align: center; margin-top: 40px; font-size: 13px; color: var(--hint-color); }
         footer a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
-        #floating-hashtags-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; z-index: 1; }
-        .floating-hashtag { position: absolute; display: flex; align-items: center; gap: 6px; background-color: rgba(30, 30, 30, 0.5); backdrop-filter: blur(3px); color: var(--hint-color); padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1px solid var(--border-color); opacity: 0; animation: floatAnimation 20s ease-in-out infinite; will-change: transform, opacity; }
+
+        #floating-hashtags-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; pointer-events: none; z-index: 1;
+        }
+        .floating-hashtag {
+            position: absolute; display: flex; align-items: center; gap: 6px;
+            background-color: rgba(30, 30, 30, 0.5); backdrop-filter: blur(3px);
+            color: var(--hint-color); padding: 5px 10px; border-radius: 20px;
+            font-size: 12px; font-weight: 500; border: 1px solid var(--border-color);
+            opacity: 0; animation: floatAnimation 20s ease-in-out infinite;
+            will-change: transform, opacity;
+        }
         .floating-hashtag .tg-icon { width: 16px; height: 16px; }
         .floating-hashtag .tg-icon svg{ fill: var(--primary-color); width: 100%; height: 100%; display: block; }
-        @keyframes floatAnimation { 0% { transform: translateY(20px) translateX(0px) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 25% { transform: translateY(-15px) translateX(20px) rotate(5deg); } 50% { transform: translateY(10px) translateX(-15px) rotate(-3deg); } 75% { transform: translateY(-20px) translateX(10px) rotate(2deg); } 90% { opacity: 0.7; } 100% { transform: translateY(20px) translateX(0px) rotate(0deg); opacity: 0; } }
-        @media screen and (max-width: 550px) { .mode-buttons-wrapper { flex-direction: column; align-items: stretch; gap: 16px; } #editorContainer { width: 90%; margin-left: auto; margin-right: auto; } }
+
+        @keyframes floatAnimation {
+            0% { transform: translateY(20px) translateX(0px) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; }
+            25% { transform: translateY(-15px) translateX(20px) rotate(5deg); } 50% { transform: translateY(10px) translateX(-15px) rotate(-3deg); }
+            75% { transform: translateY(-20px) translateX(10px) rotate(2deg); } 90% { opacity: 0.7; }
+            100% { transform: translateY(20px) translateX(0px) rotate(0deg); opacity: 0; }
+        }
+        /* === MOBILE FIXES START === */
+        @media screen and (max-width: 550px) {
+            .mode-buttons-wrapper {
+                flex-direction: column;
+                align-items: stretch; /* Делаем дочерние элементы одинаковой ширины */
+                gap: 16px;
+            }
+
+            #editorContainer {
+                width: 90%; /* Уменьшаем ширину редактора */
+                margin-left: auto;
+                margin-right: auto; /* И центрируем его */
+            }
+        }
+        /* === MOBILE FIXES END === */
     </style>
 </head>
 <body>
-    <div id="tg-overlay" class="hidden">
-        <div class="tg-overlay-content">
-            <span class="material-symbols-outlined">browser_updated</span>
-            <h2>Требуется обычный браузер</h2>
-            <p>Внутренний браузер Telegram не подходит для работы с файлами. Для продолжения, пожалуйста, откройте сайт в полноценном браузере.</p>
-            <button id="forceOpenInBrowserBtn">
-                <span class="material-symbols-outlined">open_in_new</span>
-                Открыть в браузере
+    <div id="floating-hashtags-container"></div>
+    <div class="modal-overlay" id="tgCheckModal"><div class="modal-content"><span class="material-symbols-outlined">quiz</span><h2>Важный вопрос</h2><p>Вы открыли этот сайт во встроенном браузере Telegram?</p><div class="modal-buttons"><button class="modal-btn secondary" id="isInsideTgBtn">Да, я в Telegram</button><button class="modal-btn primary" id="isOutsideTgBtn">Нет, я в обычном браузере</button></div></div></div>
+    <div class="modal-overlay hidden" id="tgInfoModal"><div class="modal-content"><span class="material-symbols-outlined">open_in_new</span><h2>Как открыть в браузere?</h2><p>Скачивание файлов не работает внутри Telegram. Чтобы всё получилось, пожалуйста, нажмите на <b>три точки (⋮)</b> в правом верхнем углу и выберите <b>"Открыть в браузере"</b>.</p><div class="modal-buttons"><button class="modal-btn primary" id="closeInfoModalBtn">Понятно</button></div></div></div>
+    <div class="modal-overlay hidden" id="editorHelpModal"><div class="modal-content"><span class="material-symbols-outlined">touch_app</span><h2>Режим Редактора</h2><p>Теперь вы можете свободно настраивать изображение прямо на предпросмотре ниже.<br><br>• <b>Перетаскивайте</b> изображение, чтобы изменить его положение.<br>• <b>Тяните за углы</b> для масштабирования.<br>• <b>Тяните за стороны</b> для растягивания.</p><div class="modal-buttons"><button class="modal-btn primary" id="closeEditorHelpModalBtn">Отлично!</button></div></div></div>
+    <div id="tgHelpIcon" class="hidden"><span class="material-symbols-outlined">open_in_new</span></div>
+    
+    <div class="container" id="appContainer" style="visibility: hidden;">
+        <header class="header"><h1>StoriesWall</h1><p>Создай бесшовную стенку из историй для своего профиля. Быстро, бесплатно и прямо в браузере.</p></header>
+
+        <div id="initialChoice">
+            <label for="imageLoader" class="choice-btn">
+                <span class="material-symbols-outlined">image</span>
+                <h2>Создать из фото</h2>
+                <p>Загрузи свою картинку</p>
+            </label>
+            <div class="choice-btn magic" id="startTemplateBtn">
+                <span class="material-symbols-outlined">auto_awesome</span>
+                <h2>✨ Сгенерировать магию</h2>
+                <p>Создай уникальный фон со своим ником в один клик. Каждый раз - ИИ делает рандомно</p>
+            </div>
+        </div>
+
+        <div id="uploadArea" class="hidden">
+            <label for="imageLoader" class="upload-area-inner">
+                 <div class="upload-area">
+                    <span class="material-symbols-outlined">upload_file</span>
+                    <div class="upload-text">Нажми или перетащи изображение</div>
+                    <div class="upload-hint">Вся обработка происходит на твоём устройстве</div>
+                </div>
+            </label>
+        </div>
+        <input type="file" id="imageLoader" accept="image/*">
+        
+        <div id="templateGeneratorArea" class="hidden">
+             <input type="text" id="templateTextInput" placeholder="Введи свой ник или текст...">
+             <button id="generateTemplateBtn">
+                 <span class="material-symbols-outlined">auto_fix_high</span>
+                 Сотворить чудо
             </button>
         </div>
-    </div>
-    <div id="floating-hashtags-container"></div>
-    <div class="modal-overlay hidden" id="editorHelpModal"><div class="modal-content"><span class="material-symbols-outlined">touch_app</span><h2>Режим Редактора</h2><p>• <b>Перетаскивайте</b> изображение для смены положения.<br>• <b>Тяните за углы</b> для масштабирования.<br>• <b>Тяните за стороны</b> для растягивания.</p><div class="modal-buttons"><button class="modal-btn primary" id="closeEditorHelpModalBtn">Отлично!</button></div></div></div>
-    <div class="container" id="appContainer">
-        <header class="header"><h1>StoriesWall</h1><p>Создай бесшовную стенку из историй для своего профиля. Быстро, бесплатно и прямо в браузере.</p></header>
-        <div id="initialChoice">
-            <label for="imageLoader" class="choice-btn"><span class="material-symbols-outlined">image</span><h2>Создать из фото</h2><p>Загрузи свою картинку</p></label>
-            <div class="choice-btn magic" id="startTemplateBtn"><span class="material-symbols-outlined">auto_awesome</span><h2>✨ Сгенерировать магию</h2><p>Создай уникальный фон со своим ником в один клик.</p></div>
-        </div>
-        <div id="uploadArea" class="hidden"><label for="imageLoader" class="upload-area-inner"><div class="upload-area"><span class="material-symbols-outlined">upload_file</span><div class="upload-text">Нажми или перетащи изображение</div><div class="upload-hint">Вся обработка происходит на твоём устройстве</div></div></label></div>
-        <input type="file" id="imageLoader" accept="image/*">
-        <div id="templateGeneratorArea" class="hidden"><input type="text" id="templateTextInput" placeholder="Введи свой ник или текст..."><button id="generateTemplateBtn"><span class="material-symbols-outlined">auto_fix_high</span>Сотворить чудо</button></div>
+
         <main id="mainContent" class="hidden">
             <div class="image-preview-small"><img id="previewImage" src="" alt="Uploaded image preview"></div>
             <div class="reset-container"><button id="resetBtn"><span class="material-symbols-outlined">restart_alt</span>Начать заново</button></div>
             <div class="controls-card">
-                <div class="control-group"><div class="control-label"><label for="partsSlider" style="display: flex; align-items: center;"><span class="material-symbols-outlined">grid_on</span>Количество частей</label><span id="partsValue">9</span></div><input type="range" id="partsSlider" min="3" max="99" step="3" value="9"><div class="templates-group" id="templatesGroup"><button class="template-btn" data-parts="3">3</button><button class="template-btn" data-parts="6">6</button><button class="template-btn" data-parts="9">9</button><button class="template-btn" data-parts="12">12</button><button class="template-btn" data-parts="15">15</button><button class="template-btn" data-parts="18">18</button><button class="template-btn" data-parts="21">21</button><button class="template-btn" data-parts="42">42</button></div></div>
-                <div class="control-group"><div class="control-label"><label style="display: flex; align-items: center;"><span class="material-symbols-outlined">aspect_ratio</span>Режим</label></div><div class="mode-buttons-wrapper"><div class="mode-buttons" id="modeGroup"><button class="mode-btn magic-outline active" data-mode="editor"><span class="material-symbols-outlined">tune</span>Редактор</button><button class="mode-btn" data-mode="cover"><span class="material-symbols-outlined">crop_free</span>Обрезать</button><button class="mode-btn" data-mode="contain"><span class="material-symbols-outlined">fullscreen_exit</span>Вписать</button></div><button id="resetEditorBtn" class="hidden"><span class="material-symbols-outlined">refresh</span></button></div></div>
+                <div class="control-group"><div class="control-label"><label for="partsSlider" style="display: flex; align-items: center;"><span class="material-symbols-outlined">grid_on</span> Количество частей</label><span id="partsValue">9</span></div><input type="range" id="partsSlider" min="3" max="99" step="3" value="9"><div class="templates-group" id="templatesGroup"><button class="template-btn" data-parts="3">3</button><button class="template-btn" data-parts="6">6</button><button class="template-btn" data-parts="9">9</button><button class="template-btn" data-parts="12">12</button><button class="template-btn" data-parts="15">15</button><button class="template-btn" data-parts="18">18</button><button class="template-btn" data-parts="21">21</button><button class="template-btn" data-parts="42">42</button></div></div>
+                <div class="control-group"><div class="control-label"><label style="display: flex; align-items: center;"><span class="material-symbols-outlined">aspect_ratio</span> Режим</label></div><div class="mode-buttons-wrapper"><div class="mode-buttons" id="modeGroup"><button class="mode-btn magic-outline active" data-mode="editor"><span class="material-symbols-outlined">tune</span>Редактор</button><button class="mode-btn" data-mode="cover"><span class="material-symbols-outlined">crop_free</span>Обрезать</button><button class="mode-btn" data-mode="contain"><span class="material-symbols-outlined">fullscreen_exit</span>Вписать</button></div><button id="resetEditorBtn" class="hidden"><span class="material-symbols-outlined">refresh</span></button></div></div>
             </div>
             <div id="previewGrid" class="hidden"></div>
             <div id="editorContainer" class=""><canvas id="editorCanvas"></canvas></div>
@@ -225,19 +355,336 @@
         <footer><p>Сделано с ❤️ AlliSighs и <a href="https://t.me/storieswall_bot" target="_blank">@storieswall_bot</a></p></footer>
     </div>
     <div class="loader hidden" id="loader"><div class="spinner"></div><p id="loaderText">Обработка...</p><span class="loader-hint" id="loaderHint"></span></div>
-    <script>
-        // === ОСНОВНОЙ СКРИПТ ПРИЛОЖЕНИЯ (без изменений) ===
-        const editorHelpModal=document.getElementById("editorHelpModal"),closeEditorHelpModalBtn=document.getElementById("closeEditorHelpModalBtn"),appContainer=document.getElementById("appContainer"),initialChoice=document.getElementById("initialChoice"),startTemplateBtn=document.getElementById("startTemplateBtn"),uploadArea=document.getElementById("uploadArea"),imageLoader=document.getElementById("imageLoader"),templateGeneratorArea=document.getElementById("templateGeneratorArea"),generateTemplateBtn=document.getElementById("generateTemplateBtn"),templateTextInput=document.getElementById("templateTextInput"),mainContent=document.getElementById("mainContent"),previewImage=document.getElementById("previewImage"),resetBtn=document.getElementById("resetBtn"),partsSlider=document.getElementById("partsSlider"),partsValue=document.getElementById("partsValue"),templatesGroup=document.getElementById("templatesGroup"),modeGroup=document.getElementById("modeGroup"),resetEditorBtn=document.getElementById("resetEditorBtn"),previewGrid=document.getElementById("previewGrid"),editorContainer=document.getElementById("editorContainer"),editorCanvas=document.getElementById("editorCanvas"),downloadBtn=document.getElementById("downloadBtn"),loader=document.getElementById("loader"),loaderText=document.getElementById("loaderText"),loaderHint=document.getElementById("loaderHint");let originalImage=null,generatedBlobs=[],editorModeFirstTime=!0,editorState={};closeEditorHelpModalBtn.addEventListener("click",()=>{editorHelpModal.classList.add("hidden")});function resetApp(){mainContent.classList.add("hidden"),uploadArea.classList.add("hidden"),templateGeneratorArea.classList.add("hidden"),initialChoice.classList.remove("hidden"),originalImage=null,generatedBlobs=[],imageLoader.value=null,previewGrid.innerHTML="",editorContainer.classList.add("hidden"),partsSlider.value=9,partsValue.textContent="9",modeGroup.querySelector(".active").classList.remove("active"),modeGroup.querySelector('[data-mode="editor"]').classList.add("active"),resetEditorBtn.classList.remove("hidden"),downloadBtn.disabled=!0,editorModeFirstTime=!0}resetBtn.addEventListener("click",resetApp),document.querySelector('.choice-btn[for="imageLoader"]').addEventListener("click",()=>{initialChoice.classList.add("hidden"),uploadArea.classList.remove("hidden")}),startTemplateBtn.addEventListener("click",()=>{initialChoice.classList.add("hidden"),templateGeneratorArea.classList.remove("hidden")}),imageLoader.addEventListener("change",handleFileSelect),["dragenter","dragover","dragleave","drop"].forEach(e=>{uploadArea.addEventListener(e,preventDefaults,!1)}),["dragenter","dragover"].forEach(e=>{uploadArea.addEventListener(e,()=>uploadArea.classList.add("dragover"),!1)}),["dragleave","drop"].forEach(e=>{uploadArea.addEventListener(e,()=>uploadArea.classList.remove("dragover"),!1)}),uploadArea.addEventListener("drop",handleDrop,!1),partsSlider.addEventListener("input",()=>{partsValue.textContent=partsSlider.value}),partsSlider.addEventListener("change",generatePreview),templatesGroup.addEventListener("click",e=>{if(e.target.classList.contains("template-btn")){const t=e.target.dataset.parts;partsSlider.value=t,partsValue.textContent=t,generatePreview()}}),modeGroup.addEventListener("click",e=>{const t=e.target.closest(".mode-btn");t&&(modeGroup.querySelector(".active").classList.remove("active"),t.classList.add("active"),"editor"===t.dataset.mode?(resetEditorBtn.classList.remove("hidden"),editorModeFirstTime&&(editorHelpModal.classList.remove("hidden"),editorModeFirstTime=!1)):resetEditorBtn.classList.add("hidden"),generatePreview())}),resetEditorBtn.addEventListener("click",()=>{editorState.img&&resetImageTransform()}),downloadBtn.addEventListener("click",downloadZip);function preventDefaults(e){e.preventDefault(),e.stopPropagation()}function handleDrop(e){const t=e.dataTransfer.files[0];t&&t.type.startsWith("image/")&&loadImage(t)}function handleFileSelect(e){const t=e.target.files[0];t&&loadImage(t)}function loadImage(e,t=!1){showLoader(t?"Загружаю магию...":"Загрузка изображения...");const a=new FileReader;a.onload=a=>{const o=new Image;o.onload=()=>{originalImage=o,previewImage.src=a.target.result,uploadArea.classList.add("hidden"),templateGeneratorArea.classList.add("hidden"),initialChoice.classList.add("hidden"),mainContent.classList.remove("hidden"),resetAppDefaults(),generatePreview()},o.onerror=()=>{alert("Не удалось загрузить изображение."),hideLoader()},o.src=a.target.result,t||(imageLoader.value=null)},a.readAsDataURL(e)}function resetAppDefaults(){var e;null===(e=modeGroup.querySelector(".active"))||void 0===e||e.classList.remove("active"),modeGroup.querySelector('[data-mode="editor"]').classList.add("active"),resetEditorBtn.classList.remove("hidden"),editorState={}}function showLoader(e,t=""){loaderText.textContent=e,loaderHint.textContent=t,loader.classList.remove("hidden")}function hideLoader(){loader.classList.add("hidden")}function resetImageTransform(){const e=editorCanvas.width/editorCanvas.height,t=originalImage.width/originalImage.height;let a,o;t>e?(a=editorCanvas.width,o=a/t):(o=editorCanvas.height,a=o*t),editorState.x=(editorCanvas.width-a)/2,editorState.y=(editorCanvas.height-o)/2,editorState.w=a,editorState.h=o,editorState.aspect=a/o}
-        function setupEditor(){const e=parseInt(partsSlider.value,10),t=Math.ceil(e/3),a=1080,o=a/3*t*(1342/1080);editorCanvas.width=a,editorCanvas.height=o;const i=editorCanvas.getContext("2d"),d=24,n="#8a2be2",s=[{x:0,y:0,cursor:"nwse-resize",type:"corner"},{x:.5,y:0,cursor:"ns-resize",type:"side"},{x:1,y:0,cursor:"nesw-resize",type:"corner"},{x:0,y:.5,cursor:"ew-resize",type:"side"},{x:1,y:.5,cursor:"ew-resize",type:"side"},{x:0,y:1,cursor:"nesw-resize",type:"corner"},{x:.5,y:1,cursor:"ns-resize",type:"side"},{x:1,y:1,cursor:"nwse-resize",type:"corner"}],l=10;editorState.img&&editorState.img===originalImage||(editorState.img=originalImage,resetImageTransform());function r(){i.fillStyle=getComputedStyle(document.documentElement).getPropertyValue("--surface-color"),i.fillRect(0,0,editorCanvas.width,editorCanvas.height),i.drawImage(editorState.img,editorState.x,editorState.y,editorState.w,editorState.h);const e=getComputedStyle(document.documentElement).getPropertyValue("--bg-color");i.fillStyle=e;for(let e=1;e<3;e++)i.fillRect(e*a/3-2,0,4,o);for(let e=1;e<t;e++)i.fillRect(0,e*o/t-2,a,4);(editorState.isSnappedX||editorState.isSnappedY)&&(i.strokeStyle="rgba(255, 255, 255, 0.5)",i.lineWidth=1,i.setLineDash([5,5]),editorState.isSnappedX&&(i.beginPath(),i.moveTo(a/2,0),i.lineTo(a/2,o),i.stroke()),editorState.isSnappedY&&(i.beginPath(),i.moveTo(0,o/2),i.lineTo(a,o/2),i.stroke()),i.setLineDash([])),i.strokeStyle=n,i.lineWidth=4,i.strokeRect(editorState.x,editorState.y,editorState.w,editorState.h),i.fillStyle=n,s.forEach(e=>{i.fillRect(editorState.x+editorState.w*e.x-d/2,editorState.y+editorState.h*e.y-d/2,d,d)}),requestAnimationFrame(r)}function c(e){const t=editorCanvas.getBoundingClientRect(),a=e.touches?e.touches[0].clientX:e.clientX,o=e.touches?e.touches[0].clientY:e.clientY;return{x:(a-t.left)/t.width*editorCanvas.width,y:(o-t.top)/t.height*editorCanvas.height}}function g(e){e.preventDefault();const t=c(e);editorState.startX=t.x,editorState.startY=t.y,editorState.activeHandle=null;for(let e=0;e<s.length;e++){const a=s[e],o=editorState.x+editorState.w*a.x,i=editorState.y+editorState.h*a.y;if(t.x>o-d&&t.x<o+d&&t.y>i-d&&t.y<i+d){editorState.activeHandle=e;break}}null===editorState.activeHandle&&t.x>editorState.x&&t.x<editorState.x+editorState.w&&t.y>editorState.y&&t.y<editorState.y+editorState.h&&(editorState.isDragging=!0),p(t)}function h(e){if(!editorState.isDragging&&null===editorState.activeHandle)return;e.preventDefault();const t=c(e),i=t.x-editorState.startX,d=t.y-editorState.startY;if(editorState.isDragging){editorState.x+=i,editorState.y+=d;const e=editorState.x+editorState.w/2,n=editorState.y+editorState.h/2,s=a/2,r=o/2;editorState.isSnappedX=Math.abs(e-s)<l,editorState.isSnappedY=Math.abs(n-r)<l,editorState.isSnappedX&&(editorState.x=s-editorState.w/2),editorState.isSnappedY&&(editorState.y=r-editorState.h/2)}else if(null!==editorState.activeHandle){const e=s[editorState.activeHandle],t=editorState.aspect;if("side"===e.type)0===e.x?(editorState.x+=i,editorState.w-=i):1===e.x&&(editorState.w+=i),0===e.y?(editorState.y+=d,editorState.h-=d):1===e.y&&(editorState.h+=d),editorState.aspect=editorState.w/editorState.h;else if("corner"===e.type){const a=editorState.w,o=editorState.h;1===e.x?editorState.w+=i:editorState.w-=i,editorState.h=editorState.w/t,0===e.x&&(editorState.x+=a-editorState.w),0===e.y&&(editorState.y+=o-editorState.h)}}editorState.startX=t.x,editorState.startY=t.y,p(t)}
-        function u(){editorState.isDragging=!1,editorState.activeHandle=null,editorState.isSnappedX=!1,editorState.isSnappedY=!1,editorCanvas.style.cursor="grab"}function p(e){let t=!1;for(let a=0;a<s.length;a++){const o=s[a],i=editorState.x+editorState.w*o.x,n=editorState.y+editorState.h*o.y;if(e.x>i-d&&e.x<i+d&&e.y>n-d&&e.y<n+d){editorCanvas.style.cursor=o.cursor,t=!0;break}}t||(editorCanvas.style.cursor=e.x>editorState.x&&e.x<editorState.x+editorState.w&&e.y>editorState.y&&e.y<editorState.y+editorState.h?"grabbing":"grab")}editorCanvas.removeEventListener("mousedown",g),window.removeEventListener("mousemove",h),window.removeEventListener("mouseup",u),editorCanvas.removeEventListener("touchstart",g),window.removeEventListener("touchmove",h),window.removeEventListener("touchend",u),editorCanvas.addEventListener("mousedown",g),window.addEventListener("mousemove",h),window.addEventListener("mouseup",u),editorCanvas.addEventListener("touchstart",g,{passive:!1}),window.addEventListener("touchmove",h,{passive:!1}),window.addEventListener("touchend",u),requestAnimationFrame(r)}async function generatePreview(){if(!originalImage)return;showLoader("Создаю предпросмотр..."),await new Promise(e=>setTimeout(e,50));const e=modeGroup.querySelector(".active").dataset.mode;if("editor"===e)return previewGrid.classList.add("hidden"),editorContainer.classList.remove("hidden"),setupEditor(),downloadBtn.disabled=!1,void hideLoader();editorContainer.classList.add("hidden"),previewGrid.classList.remove("hidden"),previewGrid.innerHTML="",downloadBtn.disabled=!0;const t=parseInt(partsSlider.value,10),a=Math.ceil(t/3),o=1080*3,i=1342*a,d=document.createElement("canvas");d.width=o,d.height=i;const n=d.getContext("2d");n.fillStyle="black",n.fillRect(0,0,o,i);const s=originalImage.width/originalImage.height,l=o/i;let r,c,g,h;"cover"===e?s>l?(c=i,r=c*s,g=(o-r)/2,h=0):(r=o,c=r/s,g=0,h=(i-c)/2):s>l?(r=o,c=r/s,g=0,h=(i-c)/2):(c=i,r=c*s,g=(o-r)/2,h=0),n.drawImage(originalImage,g,h,r,c);for(let e=0;e<t;e++){const t=Math.floor(e/3),s=e%3,l=1080*s,r=1342*t,c=document.createElement("canvas");c.width=1080,c.height=1920;const g=c.getContext("2d");g.fillStyle="black",g.fillRect(0,0,1080,1920);const h=(1920-1342)/2;g.drawImage(d,l,r,1080,1342,(1080-1080)/2,h,1080,1342);const u=document.createElement("img"),p=document.createElement("div");u.src=c.toDataURL("image/jpeg",.8),p.className="preview-cell",p.appendChild(u),previewGrid.appendChild(p)}downloadBtn.disabled=!1,hideLoader()}
-        async function createFinalBlobs(){const e=[],t=modeGroup.querySelector(".active").dataset.mode,a=parseInt(partsSlider.value,10),o=Math.ceil(a/3),i=1080*3,d=1342*o,n=document.createElement("canvas");n.width=i,n.height=d;const s=n.getContext("2d",{willReadFrequently:!0});if(s.fillStyle="black",s.fillRect(0,0,i,d),"editor"===t){const e=i/editorCanvas.width,t=d/editorCanvas.height;s.drawImage(editorState.img,editorState.x*e,editorState.y*t,editorState.w*e,editorState.h*t)}else{const e=originalImage.width/originalImage.height,a=i/d;let o,n,l,r;"cover"===t?e>a?(n=d,o=n*e,l=(i-o)/2,r=0):(o=i,n=o/e,l=0,r=(d-n)/2):e>a?(o=i,n=o/e,l=0,r=(d-n)/2):(n=d,o=n*e,l=(i-o)/2,r=0),s.drawImage(originalImage,l,r,o,n)}for(let t=0;t<a;t++){const a=Math.floor(t/3),o=t%3,i=1080*o,d=1342*a,l=document.createElement("canvas");l.width=1080,l.height=1920;const r=l.getContext("2d");r.fillStyle="black",r.fillRect(0,0,1080,1920);const c=(1920-1342)/2;r.drawImage(n,i,d,1080,1342,(1080-1080)/2,c,1080,1342),r.font="18px Inter",r.fillStyle="#404040",r.textAlign="center",r.textBaseline="middle",r.fillText("создай такое же в @storieswall_bot",540,1920-c/2);const g=await new Promise(e=>l.toBlob(e,"image/png"));e.push(g)}return e}
-        async function downloadZip(){showLoader("Создаю ZIP-архив...","Это может занять некоторое время..."),await new Promise(e=>setTimeout(e,50)),generatedBlobs=await createFinalBlobs();if(0!==generatedBlobs.length){const e=new JSZip;generatedBlobs.forEach((t,a)=>{const o=`story_${String(a+1).padStart(2,"0")}.png`;e.file(o,t)});const t=await e.generateAsync({type:"blob",compression:"DEFLATE",compressionOptions:{level:9}}),a=document.createElement("a");a.href=URL.createObjectURL(t),a.download=`storieswall_${generatedBlobs.length}parts.zip`,document.body.appendChild(a),a.click(),document.body.removeChild(a),URL.revokeObjectURL(a.href),hideLoader()}}const palettes={cosmic:[["#0f0c29","#302b63","#24243e"],["#141E30","#243B55"],["#000428","#004e92"],["#41295a","#2F0743"],["#16222A","#3A6073"],["#2c3e50","#4ca1af"]],neon:[["#ff00ff","#00ffff"],["#f83bff","#2cfd2f"],["#ff4b2b","#ff416c"],["#00c6ff","#0072ff"],["#f7971e","#ffd200"]],geo:[["#00c9ff","#92fe9d"],["#ee9ca7","#ffdde1"],["#de6262","#ffb88c"],["#6dd5ed","#2193b0"],["#ddd6f3","#faaca8"]]};function getRandomFrom(e){return e[Math.floor(Math.random()*e.length)]}function getRandomFloat(e,t){return Math.random()*(t-e)+e}
-        async function drawText(e,t,a,o){e.font=`900 ${.1*a}px Inter`,e.textAlign="center",e.textBaseline="middle",e.fillStyle="rgba(255, 255, 255, 0.9)",e.shadowColor="rgba(0, 0, 0, 0.5)",e.shadowBlur=15,e.fillText(t,a/2,o/2+getRandomFloat(-.1*o,.1*o)),e.shadowBlur=0}async function templateCosmic(e,t,a){const o=document.createElement("canvas");o.width=t,o.height=a;const i=o.getContext("2d"),d=getRandomFrom(palettes.cosmic);i.fillStyle=d[0],i.fillRect(0,0,t,a);for(let e=0;e<3;e++){const n=i.createRadialGradient(getRandomFloat(0,t),getRandomFloat(0,a),0,getRandomFloat(0,t),getRandomFloat(0,a),.7*Math.max(t,a));n.addColorStop(0,getRandomFrom(d)+"66"),n.addColorStop(1,"transparent"),i.globalCompositeOperation="lighter",i.fillStyle=n,i.fillRect(0,0,t,a)}i.globalCompositeOperation="source-over";for(let e=0;e<500;e++)i.fillStyle=`rgba(255, 255, 255, ${getRandomFloat(.2,.9)})`,i.beginPath(),i.arc(getRandomFloat(0,t),getRandomFloat(0,a),getRandomFloat(.5,2),0,2*Math.PI),i.fill();return await drawText(i,e,t,a),o}async function templateNeonGrid(e,t,a){const o=document.createElement("canvas");o.width=t,o.height=a;const i=o.getContext("2d"),d=getRandomFrom(palettes.neon);i.fillStyle="#100c24",i.fillRect(0,0,t,a);const n=a*getRandomFloat(.45,.55),s=.2*t,l=i.createRadialGradient(t/2,n,0,t/2,n,s);l.addColorStop(0,d[0]+"aa"),l.addColorStop(.5,d[0]+"44"),l.addColorStop(1,"transparent"),i.fillStyle=l,i.fillRect(0,0,t,a),i.save(),i.translate(t/2,n);for(let e=0;e<30;e++){const o=(e/30)**2*(a-n);i.fillStyle=`rgba(255,255,255, ${.3*(1-e/30)})`,i.fillRect(-t/2,o,t,2)}for(let e=0;e<=20;e++){const a=.5*t*2*(e/20-.5);i.beginPath(),i.moveTo(a,0),i.lineTo(5*a,height),i.strokeStyle=d[1],i.lineWidth=3,i.shadowColor=d[1],i.shadowBlur=20,i.stroke()}return i.restore(),i.shadowBlur=0,await drawText(i,e,t,a),o}
-        async function templateGeoChaos(e,t,a){const o=document.createElement("canvas");o.width=t,o.height=a;const i=o.getContext("2d"),d=getRandomFrom(palettes.geo),n=i.createLinearGradient(0,0,t,a);n.addColorStop(0,d[0]),n.addColorStop(1,d[1]),i.fillStyle=n,i.fillRect(0,0,t,a);for(let e=0;e<50;e++){i.save(),i.translate(getRandomFloat(0,t),getRandomFloat(0,a)),i.rotate(getRandomFloat(0,2*Math.PI)),i.fillStyle=`rgba(255, 255, 255, ${getRandomFloat(.05,.2)})`;const d=Math.random(),n=.3*getRandomFloat(.05*t,t);d<.5?i.fillRect(-n/2,-n/2,n,n):(i.beginPath(),i.arc(0,0,n/2,0,2*Math.PI),i.fill()),i.restore()}return await drawText(i,e,t,a),o}const templateGenerators=[templateCosmic,templateNeonGrid,templateGeoChaos];generateTemplateBtn.addEventListener("click",async()=>{const e=templateTextInput.value.trim()||"StoriesWall";showLoader("Творим магию...","Создаем уникальный фон..."),await new Promise(e=>setTimeout(e,50));const t=parseInt(partsSlider.value,10),a=Math.ceil(t/3),o=1080*3,i=1342*a;try{const t=getRandomFrom(templateGenerators),d=await t(e,o,i);d.toBlob(e=>{loadImage(e,!0)},"image/png")}catch(e){console.error("Ошибка при генерации шаблона:",e),alert("Упс, магия не сработала. Попробуйте еще раз."),hideLoader()}});
 
-        // === ГЛАВНЫЙ СКРИПТ, ЗАПУСКАЕТСЯ ПОСЛЕ ЗАГРУЗКИ СТРАНИЦЫ ===
+    <script>
+
+        (function() {
+            const ua = navigator.userAgent.toLowerCase();
+            const isAndroid = ua.indexOf("android") > -1;
+            // Проверяем по userAgent, что мы внутри Telegram и на Android
+            if (isAndroid && /telegram/i.test(ua)) {
+                // Получаем текущий URL страницы
+                const currentUrl = window.location.href;
+                
+                // Создаем специальную ссылку-интент для Android
+                // Она говорит системе: "открой этот URL с помощью приложения, которое умеет это делать (т.е. браузера)"
+                const intentUrl = "intent://" + 
+                                  currentUrl.substring(currentUrl.indexOf('//') + 2) + 
+                                  "#Intent;scheme=https;action=android.intent.action.VIEW;end;";
+                
+                // Немедленно перенаправляем пользователя
+                window.location.href = intentUrl;
+            }
+        })();
+        const tgCheckModal = document.getElementById('tgCheckModal'), tgInfoModal = document.getElementById('tgInfoModal'), editorHelpModal = document.getElementById('editorHelpModal'), isInsideTgBtn = document.getElementById('isInsideTgBtn'), isOutsideTgBtn = document.getElementById('isOutsideTgBtn'), closeInfoModalBtn = document.getElementById('closeInfoModalBtn'), closeEditorHelpModalBtn = document.getElementById('closeEditorHelpModalBtn'), tgHelpIcon = document.getElementById('tgHelpIcon'), appContainer = document.getElementById('appContainer'), initialChoice = document.getElementById('initialChoice'), startTemplateBtn = document.getElementById('startTemplateBtn'), uploadArea = document.getElementById('uploadArea'), imageLoader = document.getElementById('imageLoader'), templateGeneratorArea = document.getElementById('templateGeneratorArea'), generateTemplateBtn = document.getElementById('generateTemplateBtn'), templateTextInput = document.getElementById('templateTextInput'), mainContent = document.getElementById('mainContent'), previewImage = document.getElementById('previewImage'), resetBtn = document.getElementById('resetBtn'), partsSlider = document.getElementById('partsSlider'), partsValue = document.getElementById('partsValue'), templatesGroup = document.getElementById('templatesGroup'), modeGroup = document.getElementById('modeGroup'), resetEditorBtn = document.getElementById('resetEditorBtn'), previewGrid = document.getElementById('previewGrid'), editorContainer = document.getElementById('editorContainer'), editorCanvas = document.getElementById('editorCanvas'), downloadBtn = document.getElementById('downloadBtn'), loader = document.getElementById('loader'), loaderText = document.getElementById('loaderText'), loaderHint = document.getElementById('loaderHint');
+        let originalImage = null, generatedBlobs = [], editorModeFirstTime = true, editorState = {};
+
+        isOutsideTgBtn.addEventListener('click', () => { tgCheckModal.classList.add('hidden'); appContainer.style.visibility = 'visible'; });
+        isInsideTgBtn.addEventListener('click', () => { tgCheckModal.querySelector('.modal-content').innerHTML = `<span class="material-symbols-outlined">open_in_new</span><h2>Нужно открыть в браузере!</h2><p>Скачивание файлов не работает внутри Telegram. Чтобы всё получилось, пожалуйста, нажмите на <b>три точки (⋮)</b> вверху и выберите <b>"Открыть в браузере"</b>.</p>`; });
+        tgHelpIcon.addEventListener('click', () => tgInfoModal.classList.remove('hidden'));
+        closeInfoModalBtn.addEventListener('click', () => tgInfoModal.classList.add('hidden'));
+        closeEditorHelpModalBtn.addEventListener('click', () => editorHelpModal.classList.add('hidden'));
+        
+        function resetApp() {
+            mainContent.classList.add('hidden');
+            uploadArea.classList.add('hidden');
+            templateGeneratorArea.classList.add('hidden');
+            initialChoice.classList.remove('hidden');
+            tgHelpIcon.classList.add('hidden');
+            originalImage = null; generatedBlobs = []; imageLoader.value = null; previewGrid.innerHTML = ''; editorContainer.classList.add('hidden');
+            partsSlider.value = 9; partsValue.textContent = '9';
+            modeGroup.querySelector('.active').classList.remove('active');
+            modeGroup.querySelector('[data-mode="editor"]').classList.add('active');
+            resetEditorBtn.classList.remove('hidden');
+            downloadBtn.disabled = true; editorModeFirstTime = true;
+        }
+        resetBtn.addEventListener('click', resetApp);
+        
+        document.querySelector('.choice-btn[for="imageLoader"]').addEventListener('click', () => {
+            initialChoice.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+        });
+        startTemplateBtn.addEventListener('click', () => {
+            initialChoice.classList.add('hidden');
+            templateGeneratorArea.classList.remove('hidden');
+        });
+
+        imageLoader.addEventListener('change', handleFileSelect);
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => uploadArea.addEventListener(e, preventDefaults, false));
+        ['dragenter', 'dragover'].forEach(e => uploadArea.addEventListener(e, () => uploadArea.classList.add('dragover'), false));
+        ['dragleave', 'drop'].forEach(e => uploadArea.addEventListener(e, () => uploadArea.classList.remove('dragover'), false));
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        partsSlider.addEventListener('input', () => partsValue.textContent = partsSlider.value);
+        partsSlider.addEventListener('change', generatePreview);
+
+        templatesGroup.addEventListener('click', (e) => { if (e.target.classList.contains('template-btn')) { const parts = e.target.dataset.parts; partsSlider.value = parts; partsValue.textContent = parts; generatePreview(); } });
+
+        modeGroup.addEventListener('click', (e) => {
+            const button = e.target.closest('.mode-btn');
+            if (button) {
+                modeGroup.querySelector('.active').classList.remove('active'); button.classList.add('active');
+                if (button.dataset.mode === 'editor') {
+                    resetEditorBtn.classList.remove('hidden');
+                    if (editorModeFirstTime) { editorHelpModal.classList.remove('hidden'); editorModeFirstTime = false; }
+                } else { resetEditorBtn.classList.add('hidden'); }
+                generatePreview();
+            }
+        });
+        
+        resetEditorBtn.addEventListener('click', () => {
+             if (editorState.img) {
+                resetImageTransform();
+             }
+        });
+        downloadBtn.addEventListener('click', downloadZip);
+
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+        function handleDrop(e) { const file = e.dataTransfer.files[0]; if (file && file.type.startsWith('image/')) loadImage(file); }
+        function handleFileSelect(e) { const file = e.target.files[0]; if (file) loadImage(file); }
+
+        function loadImage(file, isGenerated = false) {
+            showLoader(isGenerated ? 'Загружаю магию...' : 'Загрузка изображения...');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    originalImage = img; previewImage.src = e.target.result;
+                    uploadArea.classList.add('hidden');
+                    templateGeneratorArea.classList.add('hidden');
+                    initialChoice.classList.add('hidden');
+                    mainContent.classList.remove('hidden');
+                    tgHelpIcon.classList.remove('hidden');
+                    resetAppDefaults();
+                    generatePreview();
+                };
+                img.onerror = () => { alert('Не удалось загрузить изображение.'); hideLoader(); };
+                img.src = e.target.result; 
+                if(!isGenerated) imageLoader.value = null;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function resetAppDefaults() {
+             modeGroup.querySelector('.active')?.classList.remove('active');
+             modeGroup.querySelector('[data-mode="editor"]').classList.add('active');
+             resetEditorBtn.classList.remove('hidden');
+             editorState = {};
+        }
+
+        function showLoader(text, hint = '') { loaderText.textContent = text; loaderHint.textContent = hint; loader.classList.remove('hidden'); }
+        function hideLoader() { loader.classList.add('hidden'); }
+        
+        function resetImageTransform() {
+            const canvasAspect = editorCanvas.width / editorCanvas.height;
+            const imgAspect = originalImage.width / originalImage.height;
+            let w, h;
+            if (imgAspect > canvasAspect) { w = editorCanvas.width; h = w / imgAspect; } 
+            else { h = editorCanvas.height; w = h * imgAspect; }
+            editorState.x = (editorCanvas.width - w) / 2; editorState.y = (editorCanvas.height - h) / 2;
+            editorState.w = w; editorState.h = h;
+            editorState.aspect = w/h;
+        }
+
+        function setupEditor() {
+            const parts = parseInt(partsSlider.value, 10);
+            const GRID_COLS = 3;
+            const GRID_ROWS = Math.ceil(parts / GRID_COLS);
+            const totalWidth = 1080;
+            const totalHeight = totalWidth / GRID_COLS * GRID_ROWS * (1342 / 1080);
+            
+            editorCanvas.width = totalWidth; editorCanvas.height = totalHeight;
+            const ctx = editorCanvas.getContext('2d');
+            const handleSize = 24; const handleColor = '#8a2be2';
+            const handles = [ { x: 0, y: 0, cursor: 'nwse-resize', type: 'corner' }, { x: 0.5, y: 0, cursor: 'ns-resize', type: 'side' }, { x: 1, y: 0, cursor: 'nesw-resize', type: 'corner' }, { x: 0, y: 0.5, cursor: 'ew-resize', type: 'side' }, { x: 1, y: 0.5, cursor: 'ew-resize', type: 'side' }, { x: 0, y: 1, cursor: 'nesw-resize', type: 'corner' }, { x: 0.5, y: 1, cursor: 'ns-resize', type: 'side' }, { x: 1, y: 1, cursor: 'nwse-resize', type: 'corner' }];
+            const snapThreshold = 10;
+
+            if (!editorState.img || editorState.img !== originalImage) {
+                 editorState.img = originalImage;
+                 resetImageTransform();
+            } else {
+                 const oldCanvasHeight = editorState.canvasHeight || totalHeight;
+                 const ratio = totalHeight / oldCanvasHeight;
+                 editorState.y *= ratio;
+                 editorState.h *= ratio;
+            }
+            editorState.canvasHeight = totalHeight;
+            
+            function draw() {
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface-color');
+                ctx.fillRect(0, 0, editorCanvas.width, editorCanvas.height);
+                ctx.drawImage(editorState.img, editorState.x, editorState.y, editorState.w, editorState.h);
+
+                const gridLineColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color');
+                ctx.fillStyle = gridLineColor;
+                for (let i = 1; i < GRID_COLS; i++) { ctx.fillRect((i * totalWidth / GRID_COLS) - 2, 0, 4, totalHeight); }
+                for (let i = 1; i < GRID_ROWS; i++) { ctx.fillRect(0, (i * totalHeight / GRID_ROWS) - 2, totalWidth, 4); }
+                
+                if (editorState.isSnappedX || editorState.isSnappedY) {
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'; ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
+                    if (editorState.isSnappedX) { ctx.beginPath(); ctx.moveTo(totalWidth / 2, 0); ctx.lineTo(totalWidth / 2, totalHeight); ctx.stroke(); }
+                    if (editorState.isSnappedY) { ctx.beginPath(); ctx.moveTo(0, totalHeight / 2); ctx.lineTo(totalWidth, totalHeight / 2); ctx.stroke(); }
+                    ctx.setLineDash([]);
+                }
+
+                ctx.strokeStyle = handleColor; ctx.lineWidth = 4;
+                ctx.strokeRect(editorState.x, editorState.y, editorState.w, editorState.h);
+                ctx.fillStyle = handleColor;
+                handles.forEach(h => { ctx.fillRect(editorState.x + editorState.w * h.x - handleSize / 2, editorState.y + editorState.h * h.y - handleSize / 2, handleSize, handleSize); });
+                requestAnimationFrame(draw);
+            }
+            
+            function getMousePos(e) {
+                const rect = editorCanvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: (clientX - rect.left) / rect.width * editorCanvas.width, y: (clientY - rect.top) / rect.height * editorCanvas.height };
+            }
+
+            function handleStart(e) {
+                e.preventDefault(); const pos = getMousePos(e); editorState.startX = pos.x; editorState.startY = pos.y; editorState.activeHandle = null;
+                for (let i = 0; i < handles.length; i++) {
+                    const h = handles[i]; const hx = editorState.x + editorState.w * h.x; const hy = editorState.y + editorState.h * h.y;
+                    if (pos.x > hx - handleSize && pos.x < hx + handleSize && pos.y > hy - handleSize && pos.y < hy + handleSize) { editorState.activeHandle = i; break; }
+                }
+                if (editorState.activeHandle === null && pos.x > editorState.x && pos.x < editorState.x + editorState.w && pos.y > editorState.y && pos.y < editorState.y + editorState.h) { editorState.isDragging = true; }
+                updateCursor(pos);
+            }
+
+            function handleMove(e) {
+                if (!editorState.isDragging && editorState.activeHandle === null) {
+                    return;
+                }
+                e.preventDefault(); const pos = getMousePos(e);
+                const dx = pos.x - editorState.startX; const dy = pos.y - editorState.startY;
+                if (editorState.isDragging) {
+                    editorState.x += dx; editorState.y += dy;
+                    const imgCenterX = editorState.x + editorState.w / 2, imgCenterY = editorState.y + editorState.h / 2;
+                    const canvasCenterX = editorCanvas.width / 2, canvasCenterY = editorCanvas.height / 2;
+                    editorState.isSnappedX = Math.abs(imgCenterX - canvasCenterX) < snapThreshold;
+                    editorState.isSnappedY = Math.abs(imgCenterY - canvasCenterY) < snapThreshold;
+                    if(editorState.isSnappedX) editorState.x = canvasCenterX - editorState.w / 2;
+                    if(editorState.isSnappedY) editorState.y = canvasCenterY - editorState.h / 2;
+                } else if (editorState.activeHandle !== null) {
+                    const h = handles[editorState.activeHandle];
+                    const aspect = editorState.aspect;
+                    if (h.type === 'side') {
+                        if (h.x === 0) { editorState.x += dx; editorState.w -= dx; } else if (h.x === 1) { editorState.w += dx; }
+                        if (h.y === 0) { editorState.y += dy; editorState.h -= dy; } else if (h.y === 1) { editorState.h += dy; }
+                        editorState.aspect = editorState.w / editorState.h;
+                    } else if (h.type === 'corner') {
+                        const oldW = editorState.w; const oldH = editorState.h;
+                        if (h.x === 1) { editorState.w += dx; } else { editorState.w -= dx; }
+                        editorState.h = editorState.w / aspect;
+                        if (h.x === 0) { editorState.x += oldW - editorState.w; }
+                        if (h.y === 0) { editorState.y += oldH - editorState.h; }
+                    }
+                }
+                editorState.startX = pos.x; editorState.startY = pos.y; updateCursor(pos);
+            }
+
+            function handleEnd() { editorState.isDragging = false; editorState.activeHandle = null; editorState.isSnappedX = false; editorState.isSnappedY = false; editorCanvas.style.cursor = 'grab'; }
+            function updateCursor(pos) {
+                let onHandle = false;
+                for (let i = 0; i < handles.length; i++) {
+                    const h = handles[i]; const hx = editorState.x + editorState.w * h.x; const hy = editorState.y + editorState.h * h.y;
+                    if (pos.x > hx - handleSize && pos.x < hx + handleSize && pos.y > hy - handleSize && pos.y < hy + handleSize) { editorCanvas.style.cursor = h.cursor; onHandle = true; break; }
+                }
+                if (!onHandle) { editorCanvas.style.cursor = (pos.x > editorState.x && pos.x < editorState.x + editorState.w && pos.y > editorState.y && pos.y < editorState.y + editorState.h) ? 'grabbing' : 'grab'; }
+            }
+            
+            editorCanvas.removeEventListener('mousedown', handleStart); window.removeEventListener('mousemove', handleMove); window.removeEventListener('mouseup', handleEnd);
+            editorCanvas.removeEventListener('touchstart', handleStart); window.removeEventListener('touchmove', handleMove); window.removeEventListener('touchend', handleEnd);
+            editorCanvas.addEventListener('mousedown', handleStart); window.addEventListener('mousemove', handleMove); window.addEventListener('mouseup', handleEnd);
+            editorCanvas.addEventListener('touchstart', handleStart, { passive: false }); window.addEventListener('touchmove', handleMove, { passive: false }); window.addEventListener('touchend', handleEnd);
+            
+            requestAnimationFrame(draw);
+        }
+
+        async function generatePreview() {
+            if (!originalImage) return;
+            showLoader('Создаю предпросмотр...'); await new Promise(resolve => setTimeout(resolve, 50));
+            const fitMode = modeGroup.querySelector('.active').dataset.mode;
+            
+            if (fitMode === 'editor') {
+                previewGrid.classList.add('hidden'); editorContainer.classList.remove('hidden');
+                setupEditor(); downloadBtn.disabled = false; hideLoader(); return;
+            } else { editorContainer.classList.add('hidden'); previewGrid.classList.remove('hidden'); }
+            
+            previewGrid.innerHTML = ''; downloadBtn.disabled = true;
+            const parts = parseInt(partsSlider.value, 10), PIECE_WIDTH = 1080, PIECE_HEIGHT = 1342, GRID_COLS = 3, GRID_ROWS = Math.ceil(parts / GRID_COLS), totalContentWidth = PIECE_WIDTH * GRID_COLS, totalContentHeight = PIECE_HEIGHT * GRID_ROWS;
+            const sourceCanvas = document.createElement('canvas'); sourceCanvas.width = totalContentWidth; sourceCanvas.height = totalContentHeight;
+            const sourceCtx = sourceCanvas.getContext('2d');
+            sourceCtx.fillStyle = 'black'; sourceCtx.fillRect(0, 0, totalContentWidth, totalContentHeight);
+            const imgAspect = originalImage.width / originalImage.height, contentAspect = totalContentWidth / totalContentHeight;
+            let drawWidth, drawHeight, offsetX, offsetY;
+            if (fitMode === 'cover') {
+                if (imgAspect > contentAspect) { drawHeight = totalContentHeight; drawWidth = drawHeight * imgAspect; offsetX = (totalContentWidth - drawWidth) / 2; offsetY = 0; }
+                else { drawWidth = totalContentWidth; drawHeight = drawWidth / imgAspect; offsetX = 0; offsetY = (totalContentHeight - drawHeight) / 2; }
+            } else { if (imgAspect > contentAspect) { drawWidth = totalContentWidth; drawHeight = drawWidth / imgAspect; offsetX = 0; offsetY = (totalContentHeight - drawHeight) / 2; }
+                else { drawHeight = totalContentHeight; drawWidth = drawHeight * imgAspect; offsetX = (totalContentWidth - drawWidth) / 2; offsetY = 0; }
+            }
+            sourceCtx.drawImage(originalImage, offsetX, offsetY, drawWidth, drawHeight);
+            const TARGET_WIDTH = 1080, TARGET_HEIGHT = 1920;
+            for (let i = 0; i < parts; i++) {
+                const row = Math.floor(i / GRID_COLS), col = i % GRID_COLS, sx = col * PIECE_WIDTH, sy = row * PIECE_HEIGHT;
+                const outputCanvas = document.createElement('canvas'); outputCanvas.width = TARGET_WIDTH; outputCanvas.height = TARGET_HEIGHT;
+                const outputCtx = outputCanvas.getContext('2d');
+                outputCtx.fillStyle = 'black'; outputCtx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+                const dx = (TARGET_WIDTH - PIECE_WIDTH) / 2, dy = (TARGET_HEIGHT - PIECE_HEIGHT) / 2;
+                outputCtx.drawImage(sourceCanvas, sx, sy, PIECE_WIDTH, PIECE_HEIGHT, dx, dy, PIECE_WIDTH, PIECE_HEIGHT);
+                const cellImg = document.createElement('img'), cell = document.createElement('div');
+                cellImg.src = outputCanvas.toDataURL('image/jpeg', 0.8); cell.className = 'preview-cell'; cell.appendChild(cellImg); previewGrid.appendChild(cell);
+            }
+            downloadBtn.disabled = false; hideLoader();
+        }
+
+        async function createFinalBlobs() {
+            const blobs = [], fitMode = modeGroup.querySelector('.active').dataset.mode, parts = parseInt(partsSlider.value, 10), PIECE_WIDTH = 1080, PIECE_HEIGHT = 1342, GRID_COLS = 3, GRID_ROWS = Math.ceil(parts / GRID_COLS), totalContentWidth = PIECE_WIDTH * GRID_COLS, totalContentHeight = PIECE_HEIGHT * GRID_ROWS, TARGET_WIDTH = 1080, TARGET_HEIGHT = 1920;
+            const sourceCanvas = document.createElement('canvas'); sourceCanvas.width = totalContentWidth; sourceCanvas.height = totalContentHeight;
+            const sourceCtx = sourceCanvas.getContext('2d', { willReadFrequently: true }); sourceCtx.fillStyle = 'black'; sourceCtx.fillRect(0, 0, totalContentWidth, totalContentHeight);
+            if (fitMode === 'editor') {
+                 const scaleX = totalContentWidth / editorCanvas.width, scaleY = totalContentHeight / editorCanvas.height;
+                 sourceCtx.drawImage(editorState.img, editorState.x * scaleX, editorState.y * scaleY, editorState.w * scaleX, editorState.h * scaleY);
+            } else {
+                const imgAspect = originalImage.width / originalImage.height, contentAspect = totalContentWidth / totalContentHeight; let drawWidth, drawHeight, offsetX, offsetY;
+                if (fitMode === 'cover') {
+                    if (imgAspect > contentAspect) { drawHeight = totalContentHeight; drawWidth = drawHeight * imgAspect; offsetX = (totalContentWidth - drawWidth) / 2; offsetY = 0; }
+                    else { drawWidth = totalContentWidth; drawHeight = drawWidth / imgAspect; offsetX = 0; offsetY = (totalContentHeight - drawHeight) / 2; }
+                } else { if (imgAspect > contentAspect) { drawWidth = totalContentWidth; drawHeight = drawWidth / imgAspect; offsetX = 0; offsetY = (totalContentHeight - drawHeight) / 2; }
+                    else { drawHeight = totalContentHeight; drawWidth = drawHeight * imgAspect; offsetX = (totalContentWidth - drawWidth) / 2; offsetY = 0; }
+                }
+                sourceCtx.drawImage(originalImage, offsetX, offsetY, drawWidth, drawHeight);
+            }
+            for (let i = 0; i < parts; i++) {
+                const row = Math.floor(i / GRID_COLS), col = i % GRID_COLS, sx = col * PIECE_WIDTH, sy = row * PIECE_HEIGHT;
+                const outputCanvas = document.createElement('canvas'); outputCanvas.width = TARGET_WIDTH; outputCanvas.height = TARGET_HEIGHT;
+                const outputCtx = outputCanvas.getContext('2d');
+                outputCtx.fillStyle = 'black'; outputCtx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+                const dx = (TARGET_WIDTH - PIECE_WIDTH) / 2, dy = (TARGET_HEIGHT - PIECE_HEIGHT) / 2;
+                outputCtx.drawImage(sourceCanvas, sx, sy, PIECE_WIDTH, PIECE_HEIGHT, dx, dy, PIECE_WIDTH, PIECE_HEIGHT);
+                outputCtx.font = '18px Inter'; outputCtx.fillStyle = '#404040'; outputCtx.textAlign = 'center'; outputCtx.textBaseline = 'middle';
+                outputCtx.fillText('создай такое же в @storieswall_bot', TARGET_WIDTH / 2, TARGET_HEIGHT - dy / 2);
+                const blob = await new Promise(resolve => outputCanvas.toBlob(resolve, 'image/png')); blobs.push(blob);
+            }
+            return blobs;
+        }
+
+        async function downloadZip() {
+            const hintText = "Скоро начнётся загрузка! Если загрузка слишком долго не начинается (5 минут минимум), возможно вы пользуетесь сайтом внутри телеграм. Если это так, то откройте его в другом браузере.";
+            showLoader('Создаю ZIP-архив...', hintText); await new Promise(resolve => setTimeout(resolve, 50));
+            generatedBlobs = await createFinalBlobs();
+            if (generatedBlobs.length === 0) { hideLoader(); return; };
+            const zip = new JSZip();
+            generatedBlobs.forEach((blob, i) => { const fileName = `story_${String(i + 1).padStart(2, '0')}.png`; zip.file(fileName, blob); });
+            const zipBlob = await zip.generateAsync({type: "blob", compression: "DEFLATE", compressionOptions: { level: 9 }});
+            const link = document.createElement('a'); link.href = URL.createObjectURL(zipBlob);
+            link.download = `storieswall_${generatedBlobs.length}parts.zip`; document.body.appendChild(link);
+            link.click(); document.body.removeChild(link); URL.revokeObjectURL(link.href);
+            hideLoader();
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            // Анимация хэштегов на фоне
             const container = document.getElementById('floating-hashtags-container'); if (!container) return; const hashtagCount = 7, text = '@storieswall_bot', tgIconSvg = `<span class="tg-icon"><svg viewBox="0 0 24 24"><path d="M15 12l-4-4l-4 8l10-4zM22 2L2 9l6 3l3 6l9-16z"/></svg></span>`;
             for (let i = 0; i < hashtagCount; i++) {
                 const hashtag = document.createElement('div'); hashtag.className = 'floating-hashtag'; hashtag.innerHTML = tgIconSvg + text;
@@ -245,99 +692,173 @@
                 hashtag.style.top = `${top}%`; hashtag.style.left = `${left}%`; hashtag.style.animationDuration = `${duration}s`; hashtag.style.animationDelay = `${delay}s`; hashtag.style.transform = `scale(${scale})`;
                 container.appendChild(hashtag);
             }
+        });
 
-            // === УМНАЯ ПРОВЕРКА НА TELEGRAM И ПОКАЗ ОКНА ===
+        // ======================================================
+        // ✨ АХУЕННЫЕ ГЕНЕРАТОРЫ НАЧИНАЮТСЯ ЗДЕСЬ ✨
+        // ======================================================
+
+        function getRandomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function getRandomFloat(min, max) { return Math.random() * (max - min) + min; }
+        
+        const palettes = {
+            cosmic: [
+                ['#0f0c29', '#302b63', '#24243e'], ['#141E30', '#243B55'], ['#000428', '#004e92'],
+                ['#41295a', '#2F0743'], ['#16222A', '#3A6073'], ['#2c3e50', '#4ca1af']
+            ],
+            neon: [
+                ['#ff00ff', '#00ffff'], ['#f83bff', '#2cfd2f'], ['#ff4b2b', '#ff416c'],
+                ['#00c6ff', '#0072ff'], ['#f7971e', '#ffd200']
+            ],
+            geo: [
+                ['#00c9ff', '#92fe9d'], ['#ee9ca7', '#ffdde1'], ['#de6262', '#ffb88c'],
+                ['#6dd5ed', '#2193b0'], ['#ddd6f3', '#faaca8']
+            ]
+        };
+
+        async function drawText(ctx, text, width, height) {
+             ctx.font = `900 ${width * 0.1}px Inter`;
+             ctx.textAlign = 'center';
+             ctx.textBaseline = 'middle';
+             ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+             ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+             ctx.shadowBlur = 15;
+             ctx.fillText(text, width / 2, height / 2 + getRandomFloat(-height*0.1, height*0.1));
+             ctx.shadowBlur = 0;
+        }
+
+        async function templateCosmic(text, width, height) {
+            const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            const colors = getRandomFrom(palettes.cosmic);
+            ctx.fillStyle = colors[0]; ctx.fillRect(0, 0, width, height);
+
+            for (let i = 0; i < 3; i++) {
+                const grad = ctx.createRadialGradient(
+                    getRandomFloat(0, width), getRandomFloat(0, height), 0,
+                    getRandomFloat(0, width), getRandomFloat(0, height), Math.max(width, height) * 0.7
+                );
+                grad.addColorStop(0, getRandomFrom(colors) + '66');
+                grad.addColorStop(1, 'transparent');
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+            }
+            ctx.globalCompositeOperation = 'source-over';
+
+            for (let i = 0; i < 500; i++) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${getRandomFloat(0.2, 0.9)})`;
+                ctx.beginPath();
+                ctx.arc(getRandomFloat(0, width), getRandomFloat(0, height), getRandomFloat(0.5, 2), 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            await drawText(ctx, text, width, height);
+            return canvas;
+        }
+
+        async function templateNeonGrid(text, width, height) {
+            const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            const colors = getRandomFrom(palettes.neon);
             
-            /**
-             * Проверяет, что мы на мобильном устройстве.
-             * @returns {boolean}
-             */
-            function isMobileDevice() {
-                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            ctx.fillStyle = '#100c24'; ctx.fillRect(0, 0, width, height);
+
+            const horizon = height * getRandomFloat(0.45, 0.55);
+            const sunRadius = width * 0.2;
+            const sunGrad = ctx.createRadialGradient(width/2, horizon, 0, width/2, horizon, sunRadius);
+            sunGrad.addColorStop(0, colors[0] + 'aa');
+            sunGrad.addColorStop(0.5, colors[0] + '44');
+            sunGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = sunGrad; ctx.fillRect(0,0,width,height);
+
+            ctx.save();
+            ctx.translate(width / 2, horizon);
+            const lineCount = 30;
+            for (let i = 0; i < lineCount; i++) {
+                const perspective = i / lineCount;
+                const y = Math.pow(perspective, 2) * (height - horizon);
+                ctx.fillStyle = `rgba(255,255,255, ${0.3 * (1 - perspective)})`;
+                ctx.fillRect(-width / 2, y, width, 2);
+            }
+            const verticalLines = 20;
+            for (let i = 0; i <= verticalLines; i++) {
+                 const x = (i / verticalLines - 0.5) * width * 2;
+                 ctx.beginPath();
+                 ctx.moveTo(x, 0);
+                 ctx.lineTo(x * 5, height);
+                 ctx.strokeStyle = colors[1];
+                 ctx.lineWidth = 3;
+                 ctx.shadowColor = colors[1];
+                 ctx.shadowBlur = 20;
+                 ctx.stroke();
+            }
+            ctx.restore();
+            ctx.shadowBlur = 0;
+            
+            await drawText(ctx, text, width, height);
+            return canvas;
+        }
+
+        async function templateGeoChaos(text, width, height) {
+            const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            const colors = getRandomFrom(palettes.geo);
+
+            const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+            bgGrad.addColorStop(0, colors[0]);
+            bgGrad.addColorStop(1, colors[1]);
+            ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, width, height);
+
+            for (let i = 0; i < 50; i++) {
+                ctx.save();
+                ctx.translate(getRandomFloat(0, width), getRandomFloat(0, height));
+                ctx.rotate(getRandomFloat(0, Math.PI * 2));
+                ctx.fillStyle = `rgba(255, 255, 255, ${getRandomFloat(0.05, 0.2)})`;
+                
+                const shapeType = Math.random();
+                const size = getRandomFloat(width * 0.05, width * 0.3);
+
+                if (shapeType < 0.5) { // Rectangle
+                    ctx.fillRect(-size/2, -size/2, size, size);
+                } else { // Circle
+                    ctx.beginPath();
+                    ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
             }
             
-            function isInsideTelegram() {
-                const ua = navigator.userAgent.toLowerCase();
-                
-                console.log('=== FULL DEBUG ===');
-                console.log('User Agent:', navigator.userAgent);
-                console.log('Vendor:', navigator.vendor);
-                console.log('Platform:', navigator.platform);
-                console.log('AppVersion:', navigator.appVersion);
-                console.log('Window properties:', Object.keys(window).filter(k => k.toLowerCase().includes('tg') || k.toLowerCase().includes('telegram')));
-                console.log('Document referrer:', document.referrer);
-                console.log('==================');
-                
-                // 1. Проверка User Agent (работает для Android)
-                if (ua.includes('telegram')) {
-                    console.log('✓ Detected via User Agent');
-                    return isMobileDevice();
-                }
-                
-                // 2. Проверка на Telegram WebView (iOS часто использует это)
-                if (window.TelegramWebviewProxy !== undefined) {
-                    console.log('✓ Detected via TelegramWebviewProxy');
-                    return isMobileDevice();
-                }
-                
-                // 3. Проверка Telegram WebApp API
-                if (window.Telegram?.WebApp?.platform) {
-                    console.log('✓ Detected via WebApp API');
-                    return isMobileDevice();
-                }
-                
-                // 4. iOS Telegram может не добавлять ничего в UA, но есть другие признаки
-                // Проверяем отсутствие referrer + mobile Safari
-                const isMobileSafari = /safari/i.test(ua) && /mobile/i.test(ua) && !/chrome|crios|fxios/i.test(ua);
-                const noReferrer = !document.referrer || document.referrer === '';
-                
-                if (isMobileSafari && noReferrer && isMobileDevice()) {
-                    console.log('⚠️ Possibly Telegram iOS (no referrer + mobile Safari)');
-                    // Это может быть Telegram, но не 100%
-                    // Можно добавить дополнительную проверку или спросить пользователя
-                    return true; // Рискованно, но для iOS Telegram часто так
-                }
-                
-                console.log('✗ Not Telegram');
-                return false;
-            }
+            await drawText(ctx, text, width, height);
+            return canvas;
+        }
 
-            /**
-             * Открывает текущую страницу во внешнем браузере.
-             */
-            function openInExternalBrowser() {
-                const currentUrl = window.location.href;
-                const userAgent = navigator.userAgent;
+        const templateGenerators = [templateCosmic, templateNeonGrid, templateGeoChaos];
 
-                // 1. Приоритет для Android: используем intent.
-                if (/android/i.test(userAgent)) {
-                    // Используем `try...catch` на случай, если intent не сработает
-                    try {
-                        window.location.href = `intent://${currentUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
-                        return;
-                    } catch (e) {
-                        console.warn("Android Intent failed, falling back.", e);
-                    }
-                }
-                
-                // 2. Для iOS и других случаев, когда intent не сработал
-                if (window.Telegram?.WebApp) {
-                    window.Telegram.WebApp.openLink(currentUrl);
-                } else if (/iphone|ipad|ipod/i.test(userAgent)) {
-                    alert('Нажмите иконку "Поделиться" (квадрат со стрелкой), затем выберите "Открыть в Safari".');
-                } else {
-                    alert('Нажмите на ⋮ (три точки) в правом верхнем углу и выберите "Открыть в браузере".');
-                }
-            }
+        generateTemplateBtn.addEventListener('click', async () => {
+            const text = templateTextInput.value.trim() || 'StoriesWall';
+            showLoader('Творим магию...', 'Создаем уникальный фон...');
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
+            const parts = parseInt(partsSlider.value, 10);
+            const GRID_COLS = 3;
+            const GRID_ROWS = Math.ceil(parts / GRID_COLS);
+            const totalContentWidth = 1080 * GRID_COLS;
+            const totalContentHeight = 1342 * GRID_ROWS;
 
-            if (isInsideTelegram()) {
-                const overlay = document.getElementById('tg-overlay');
-                const button = document.getElementById('forceOpenInBrowserBtn');
-                
-                overlay.classList.remove('hidden');
-                button.addEventListener('click', openInExternalBrowser);
+            try {
+                const randomGenerator = getRandomFrom(templateGenerators);
+                const generatedCanvas = await randomGenerator(text, totalContentWidth, totalContentHeight);
+                generatedCanvas.toBlob(blob => {
+                    loadImage(blob, true);
+                }, 'image/png');
+            } catch (error) {
+                console.error('Ошибка при генерации шаблона:', error);
+                alert('Упс, магия не сработала. Попробуйте еще раз.');
+                hideLoader();
             }
         });
+
     </script>
 </body>
 </html>
