@@ -261,9 +261,21 @@
              * @returns {boolean}
              */
             function isInsideTelegram() {
-                const isTgEnv = window.Telegram?.WebApp?.platform !== undefined || /telegram/i.test(navigator.userAgent);
-                // Показываем оверлей только если это ТГ И мобильное устройство.
-                return isTgEnv && isMobileDevice();
+                // 1. Проверка User Agent - работает всегда
+                const isTgUA = /telegram/i.test(navigator.userAgent);
+                
+                // 2. Проверка через специальное свойство Telegram WebApp
+                let isTgWebApp = false;
+                try {
+                    isTgWebApp = window.Telegram?.WebApp?.initDataUnsafe?.user !== undefined;
+                } catch (e) {
+                    // Игнорируем ошибки
+                }
+                
+                // Объединяем проверки
+                const isTelegram = isTgUA || isTgWebApp;
+                
+                return isTelegram && isMobileDevice();
             }
 
             /**
