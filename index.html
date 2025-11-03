@@ -261,21 +261,15 @@
              * @returns {boolean}
              */
             function isInsideTelegram() {
-                // 1. Проверка User Agent - работает всегда
+                // Проверяем User Agent (самый надёжный способ)
                 const isTgUA = /telegram/i.test(navigator.userAgent);
                 
-                // 2. Проверка через специальное свойство Telegram WebApp
-                let isTgWebApp = false;
-                try {
-                    isTgWebApp = window.Telegram?.WebApp?.initDataUnsafe?.user !== undefined;
-                } catch (e) {
-                    // Игнорируем ошибки
-                }
+                // Дополнительная проверка: если есть Telegram WebApp и он инициализирован
+                const isTgWebApp = window.Telegram?.WebApp?.initData !== undefined && 
+                                   window.Telegram.WebApp.initData !== '';
                 
-                // Объединяем проверки
-                const isTelegram = isTgUA || isTgWebApp;
-                
-                return isTelegram && isMobileDevice();
+                // Показываем оверлей только если это ТГ И мобильное устройство
+                return (isTgUA || isTgWebApp) && isMobileDevice();
             }
 
             /**
