@@ -747,12 +747,6 @@
 
             function openInExternalBrowser() {
                 const currentUrl = window.location.href;
-
-                // 1. Лучший способ: используем официальный API Telegram
-                if (window.Telegram?.WebApp) {
-                    window.Telegram.WebApp.openLink(currentUrl);
-                    return; // Выходим, чтобы не выполнять код ниже
-                }
                 
                 // 2. Запасной способ (если API недоступен)
                 const userAgent = navigator.userAgent || navigator.vendor || window.opera;
