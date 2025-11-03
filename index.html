@@ -256,23 +256,50 @@
                 return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             }
             
-            /**
-             * Проверяет, запущен ли сайт внутри Telegram И на мобильном устройстве.
-             * @returns {boolean}
-             */
             function isInsideTelegram() {
-                // Проверяем User Agent
                 const ua = navigator.userAgent.toLowerCase();
                 
-                // Debug: выводим в консоль для проверки
+                console.log('=== FULL DEBUG ===');
                 console.log('User Agent:', navigator.userAgent);
-                console.log('Contains telegram:', ua.includes('telegram'));
-                console.log('Is mobile:', isMobileDevice());
+                console.log('Vendor:', navigator.vendor);
+                console.log('Platform:', navigator.platform);
+                console.log('AppVersion:', navigator.appVersion);
+                console.log('Window properties:', Object.keys(window).filter(k => k.toLowerCase().includes('tg') || k.toLowerCase().includes('telegram')));
+                console.log('Document referrer:', document.referrer);
+                console.log('==================');
                 
-                // Telegram добавляет слово "telegram" в User Agent
-                const isTelegram = ua.includes('telegram');
+                // 1. Проверка User Agent (работает для Android)
+                if (ua.includes('telegram')) {
+                    console.log('✓ Detected via User Agent');
+                    return isMobileDevice();
+                }
                 
-                return isTelegram && isMobileDevice();
+                // 2. Проверка на Telegram WebView (iOS часто использует это)
+                if (window.TelegramWebviewProxy !== undefined) {
+                    console.log('✓ Detected via TelegramWebviewProxy');
+                    return isMobileDevice();
+                }
+                
+                // 3. Проверка Telegram WebApp API
+                if (window.Telegram?.WebApp?.platform) {
+                    console.log('✓ Detected via WebApp API');
+                    return isMobileDevice();
+                }
+                
+                // 4. iOS Telegram может не добавлять ничего в UA, но есть другие признаки
+                // Проверяем отсутствие referrer + mobile Safari
+                const isMobileSafari = /safari/i.test(ua) && /mobile/i.test(ua) && !/chrome|crios|fxios/i.test(ua);
+                const noReferrer = !document.referrer || document.referrer === '';
+                
+                if (isMobileSafari && noReferrer && isMobileDevice()) {
+                    console.log('⚠️ Possibly Telegram iOS (no referrer + mobile Safari)');
+                    // Это может быть Telegram, но не 100%
+                    // Можно добавить дополнительную проверку или спросить пользователя
+                    return true; // Рискованно, но для iOS Telegram часто так
+                }
+                
+                console.log('✗ Not Telegram');
+                return false;
             }
 
             /**
