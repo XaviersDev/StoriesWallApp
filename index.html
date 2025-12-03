@@ -17,17 +17,15 @@
     <!-- ========================================================== -->
     <script>
         window.AD_CONFIG = {
-            // ❌ Popunder (OnClick) - Я ЕГО ОТКЛЮЧИЛ.
-            // Именно эта штука перекидывала тебя на другой сайт при любом клике.
-            // Если захочешь вернуть этот ад, раскомментируй строку ниже в скрипте initAdsSystem.
-            popunderZone: '10270558', 
+            // ❌ Popunder (Отключен, чтобы не бесил)
+            popunderZone: '', 
 
-            // ✅ In-Page Push (Уведомления сбоку, не ломают клики)
+            // ✅ Vignette Banner (Всплывает при переходах/кликах)
+            vignetteZone: '10270606', 
+
+            // ✅ In-Page Push (Уведомления)
             pushZone: '10270591',       
-            pushDomain: '3nbf4.com',
-
-            // ✅ Vignette Banner (Баннер при загрузке/переходе, не ломает клики)
-            bannerZone: '10270606' 
+            pushDomain: '3nbf4.com'
         };
     </script>
 
@@ -62,29 +60,33 @@
             z-index: 10;
         }
 
-        /* --- Стили для модалки AdBlock --- */
+        /* --- 🛡️ ЭКРАН БЛОКИРОВКИ ADBLOCK --- */
         .adblock-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(10px);
+            background: rgba(18, 18, 18, 0.98); 
             display: flex; justify-content: center; align-items: center;
-            z-index: 99999; /* Самый высокий приоритет */
+            z-index: 999999;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
+        .adblock-overlay.active { opacity: 1; pointer-events: all; }
+        
         .adblock-content {
-            background: var(--surface-color); border: 2px solid var(--error-color);
-            padding: 30px; border-radius: 20px; text-align: center; max-width: 90%; width: 400px;
-            box-shadow: 0 0 30px rgba(255, 75, 75, 0.2);
+            background: var(--surface-color); border: 1px solid var(--border-color);
+            padding: 40px 24px; border-radius: 24px; text-align: center; max-width: 90%; width: 360px;
+            box-shadow: 0 0 50px rgba(255, 75, 75, 0.15);
         }
-        .adblock-icon { font-size: 64px; color: var(--error-color); margin-bottom: 16px; }
-        .adblock-title { font-size: 22px; font-weight: 800; margin-bottom: 12px; color: #fff; }
-        .adblock-text { font-size: 15px; color: var(--hint-color); line-height: 1.6; margin-bottom: 24px; }
+        .adblock-icon { font-size: 64px; color: var(--error-color); margin-bottom: 20px; }
+        .adblock-title { font-size: 20px; font-weight: 800; margin-bottom: 12px; color: #fff; }
+        .adblock-text { font-size: 14px; color: var(--hint-color); line-height: 1.6; margin-bottom: 30px; }
         .adblock-btn {
-            background: var(--error-color); color: white; border: none;
-            padding: 12px 24px; border-radius: 12px; font-size: 16px; font-weight: 600;
-            cursor: pointer; width: 100%; transition: transform 0.1s;
+            background: linear-gradient(45deg, var(--magic-grad-start), var(--magic-grad-end));
+            color: white; border: none; padding: 16px; border-radius: 14px; 
+            font-size: 16px; font-weight: 700; cursor: pointer; width: 100%;
+            transition: transform 0.2s;
         }
-        .adblock-btn:active { transform: scale(0.98); }
+        .adblock-btn:active { transform: scale(0.95); }
 
-        /* Остальные стили */
+        /* Обычные стили */
         .header { text-align: center; margin-bottom: 32px; }
         .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
         .header p { font-size: 15px; color: var(--hint-color); line-height: 1.5; }
@@ -331,21 +333,21 @@
     </style>
 </head>
 <body>
-    <!-- 🔥 АНТИ-АДБЛОК ЭКРАН -->
-    <div id="adblockOverlay" class="adblock-overlay hidden">
+    <!-- 🔥 ADBLOCK DETECTOR (Приманка) -->
+    <div id="ad-bait" class="ad-banner" style="position: absolute; top: -999px; left: -999px; width: 1px; height: 1px;"></div>
+    
+    <!-- 🔥 ЭКРАН БЛОКИРОВКИ -->
+    <div id="adblock-overlay" class="adblock-overlay">
         <div class="adblock-content">
-            <span class="material-symbols-outlined adblock-icon">gpp_bad</span>
-            <div class="adblock-title">Ой, у вас AdBlock!</div>
+            <span class="material-symbols-outlined adblock-icon">block</span>
+            <div class="adblock-title">Обнаружен блокировщик рекламы</div>
             <div class="adblock-text">
-                Мы стараемся сделать сервис бесплатным и удобным.<br>
-                Пожалуйста, отключите блокировщик рекламы, чтобы продолжить пользоваться сайтом.
+                StoriesWall — бесплатный сервис, который живет за счет рекламы. <br><br>
+                Пожалуйста, <b>отключите AdBlock</b> и обновите страницу, чтобы продолжить.
             </div>
-            <button class="adblock-btn" onclick="location.reload()">Я отключил, обновить!</button>
+            <button class="adblock-btn" onclick="window.location.reload()">Я отключил, проверить!</button>
         </div>
     </div>
-
-    <!-- Фейковая реклама для детекта -->
-    <div class="adsbox" id="ads-bait" style="position:absolute; top:-999px; left:-999px; width:1px; height:1px;">&nbsp;</div>
 
     <div id="floating-hashtags-container"></div>
     
@@ -409,46 +411,46 @@
 
     <script>
         /* ====================================================== */
-        /* 🛡️ ДЕТЕКТОР ADBLOCK                                    */
+        /* 🛡️ ЛОГИКА ДЕТЕКТОРА ADBLOCK                            */
         /* ====================================================== */
-        document.addEventListener('DOMContentLoaded', () => {
-            const bait = document.getElementById('ads-bait');
-            const modal = document.getElementById('adblockOverlay');
-            
-            // Простая проверка: если приманка скрыта или имеет 0 высоту
+        async function checkAdBlock() {
+            const bait = document.getElementById('ad-bait');
+            const overlay = document.getElementById('adblock-overlay');
+            let blocked = false;
+
+            // 1. Проверка через CSS (обычно блокировщики скрывают элементы с классом ad-banner)
             if (bait.offsetParent === null || bait.offsetHeight === 0 || bait.timeLeft === 0) {
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Блокируем скролл
+                blocked = true;
             }
-            
-            // Доп проверка через fetch (некоторые блокировщики блокируют запрос)
-            // Пытаемся загрузить известный рекламный скрипт
-            fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', { method: 'HEAD', mode: 'no-cors' })
-            .catch(() => {
-                // Если запрос заблокирован
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            });
-        });
+
+            // 2. Проверка через сетевой запрос (на известный рекламный домен)
+            if (!blocked) {
+                try {
+                    await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', { 
+                        method: 'HEAD', 
+                        mode: 'no-cors' 
+                    });
+                } catch (e) {
+                    blocked = true;
+                }
+            }
+
+            if (blocked) {
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Блокируем прокрутку
+            }
+        }
 
         /* ====================================================== */
-        /* ⚙️ ЛОГИКА АВТОМАТИЧЕСКОЙ ВСТАВКИ РЕКЛАМЫ (MONETAG)    */
+        /* ⚙️ ЗАПУСК РЕКЛАМЫ                                      */
         /* ====================================================== */
         function initAdsSystem() {
             const cfg = window.AD_CONFIG;
             
-            // 1. OnClick / Popunder (ОТКЛЮЧЕН ПО УМОЛЧАНИЮ)
-            // Чтобы включить, убери комментарии (//) в начале строк ниже:
-            /*
-            if (cfg.popunderZone) {
-                const s = document.createElement('script');
-                s.dataset.zone = cfg.popunderZone;
-                s.src = 'https://al5sm.com/tag.min.js';
-                (document.documentElement || document.body).appendChild(s);
-            }
-            */
+            // Запускаем проверку AdBlock
+            checkAdBlock();
 
-            // 2. In-Page Push
+            // 1. In-Page Push (Уведомления)
             if (cfg.pushZone && cfg.pushDomain) {
                 const s = document.createElement('script');
                 s.src = `https://${cfg.pushDomain}/act/files/tag.min.js?z=${cfg.pushZone}`;
@@ -457,13 +459,24 @@
                 (document.body || document.documentElement).appendChild(s);
             }
 
-            // 3. Vignette Banner
-            if (cfg.bannerZone) {
+            // 2. Vignette Banner (Всплывашка)
+            if (cfg.vignetteZone) {
                 const s = document.createElement('script');
-                s.dataset.zone = cfg.bannerZone;
+                s.dataset.zone = cfg.vignetteZone;
                 s.src = 'https://gizokraijaw.net/vignette.min.js';
                 (document.documentElement || document.body).appendChild(s);
             }
+            
+            // 3. Popunder (ВЫКЛЮЧЕН)
+            // Если захочешь вернуть "клик=реклама", раскомментируй строки ниже:
+            /*
+            if (cfg.popunderZone) {
+                const s = document.createElement('script');
+                s.dataset.zone = cfg.popunderZone;
+                s.src = 'https://al5sm.com/tag.min.js';
+                (document.documentElement || document.body).appendChild(s);
+            }
+            */
         }
 
         /* ====================================================== */
