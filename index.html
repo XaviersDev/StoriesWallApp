@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="monetag" content="ddb17fc952b7873e9ceefd6a58e462a5">
     <title>Stories Wall - Создай свою стенку из историй</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,31 +13,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <!-- ========================================================== -->
-    <!-- ⚙️ НАСТРОЙКИ РЕКЛАМЫ (ЗАПОЛНИ ТОЛЬКО ЭТО)                  -->
-    <!-- Вставь свои ID внутрь кавычек. Если рекламы нет, оставь ''. -->
+    <!-- 💰 НАСТРОЙКИ РЕКЛАМЫ (MONETAG / PROPELLER)                 -->
+    <!-- Все ID уже вписаны на основе твоих данных.                 -->
     <!-- ========================================================== -->
     <script>
         window.AD_CONFIG = {
-            // 1. PropellerAds (Баннеры и Пуши)
-            propeller: {
-                topBannerZone: '',    // ID зоны для верхнего баннера
-                bottomBannerZone: '', // ID зоны перед кнопкой скачивания
-                pushZone: '',         // ID зоны для пуш-уведомлений
-                pushDomain: '',       // Твой домен для пушей (например, gluodogoth.net)
-                // Ссылка для OnClick/Popunder (полная ссылка, которую дает пропеллер, начинающаяся с //)
-                popunderUrl: ''       
-            },
-            
-            // 2. A-ADS (Крипто реклама)
-            aads: {
-                id: ''                // ID рекламного блока (Unit ID)
-            },
-            
-            // 3. Adsterra (Native Banner / Social Bar)
-            adsterra: {
-                // Сюда вставь ПОЛНЫЙ ключ (например: '7890abcdef123456...')
-                key: '' 
-            }
+            // 1. OnClick / Popunder
+            popunderZone: '10270558', 
+
+            // 2. In-Page Push
+            pushZone: '10270591',       
+            pushDomain: '3nbf4.com',
+
+            // 3. Vignette Banner (Твой новый код)
+            // Скрипт: gizokraijaw.net
+            bannerZone: '10270606' 
         };
     </script>
 
@@ -72,7 +61,7 @@
             z-index: 10;
         }
 
-        /* Стили для рекламных блоков */
+        /* Рекламные блоки (скрыты, так как форматы Vignette/Popunder не требуют места на странице) */
         .ad-block {
             background: var(--surface-color);
             border-radius: 12px;
@@ -351,12 +340,6 @@
     <div class="container" id="appContainer" style="visibility: hidden;">
         <header class="header"><h1>StoriesWall</h1><p>Создай бесшовную стенку из историй для своего профиля. Быстро, бесплатно и прямо в браузере.</p></header>
 
-        <!-- РЕКЛАМА TOP (Propeller) -->
-        <div id="ad-top-container" class="ad-block hidden">
-            <div class="ad-label">Реклама</div>
-            <div id="propeller-top-wrapper"></div>
-        </div>
-
         <div id="initialChoice">
             <label for="imageLoader" class="choice-btn">
                 <span class="material-symbols-outlined">image</span>
@@ -389,31 +372,16 @@
             </button>
         </div>
 
-        <!-- РЕКЛАМА A-ADS (Появляется после выбора) -->
-        <div id="ad-aads-container" class="ad-block hidden">
-            <div class="ad-label">Спонсор</div>
-            <div id="aads-wrapper"></div>
-        </div>
-
         <main id="mainContent" class="hidden">
             <div class="image-preview-small"><img id="previewImage" src="" alt="Uploaded image preview"></div>
             <div class="reset-container"><button id="resetBtn"><span class="material-symbols-outlined">restart_alt</span>Начать заново</button></div>
             <div class="controls-card">
                 <div class="control-group"><div class="control-label"><label for="partsSlider" style="display: flex; align-items: center;"><span class="material-symbols-outlined">grid_on</span> Количество частей</label><span id="partsValue">9</span></div><input type="range" id="partsSlider" min="3" max="99" step="3" value="9"><div class="templates-group" id="templatesGroup"><button class="template-btn" data-parts="3">3</button><button class="template-btn" data-parts="6">6</button><button class="template-btn" data-parts="9">9</button><button class="template-btn" data-parts="12">12</button><button class="template-btn" data-parts="15">15</button><button class="template-btn" data-parts="18">18</button><button class="template-btn" data-parts="21">21</button><button class="template-btn" data-parts="42">42</button></div></div>
                 <div class="control-group"><div class="control-label"><label style="display: flex; align-items: center;"><span class="material-symbols-outlined">aspect_ratio</span> Режим</label></div><div class="mode-buttons-wrapper"><div class="mode-buttons" id="modeGroup"><button class="mode-btn magic-outline active" data-mode="editor"><span class="material-symbols-outlined">tune</span>Редактор</button><button class="mode-btn" data-mode="cover"><span class="material-symbols-outlined">crop_free</span>Обрезать</button><button class="mode-btn" data-mode="contain"><span class="material-symbols-outlined">fullscreen_exit</span>Вписать</button></div><button id="resetEditorBtn" class="hidden"><span class="material-symbols-outlined">refresh</span></button></div></div>
-                
-                <!-- РЕКЛАМА ADSTERRA NATIVE -->
-                <div id="ad-adsterra-container"></div>
             </div>
             
             <div id="previewGrid" class="hidden"></div>
             <div id="editorContainer" class=""><canvas id="editorCanvas"></canvas></div>
-            
-            <!-- РЕКЛАМА BOTTOM (Propeller) -->
-            <div id="ad-bottom-container" class="ad-block hidden">
-                <div class="ad-label">Реклама</div>
-                <div id="propeller-bottom-wrapper"></div>
-            </div>
 
             <button id="downloadBtn" disabled><span class="material-symbols-outlined">download</span>Скачать (.zip)</button>
         </main>
@@ -423,63 +391,34 @@
 
     <script>
         /* ====================================================== */
-        /* ⚙️ ЛОГИКА АВТОМАТИЧЕСКОЙ ВСТАВКИ РЕКЛАМЫ (НЕ ТРОГАТЬ)  */
+        /* ⚙️ ЛОГИКА АВТОМАТИЧЕСКОЙ ВСТАВКИ РЕКЛАМЫ (MONETAG)    */
         /* ====================================================== */
         function initAdsSystem() {
             const cfg = window.AD_CONFIG;
             
-            // 1. Propeller PUSH
-            if (cfg.propeller.pushZone && cfg.propeller.pushDomain) {
+            // 1. OnClick / Popunder
+            if (cfg.popunderZone) {
                 const s = document.createElement('script');
-                s.src = 'https://' + cfg.propeller.pushDomain + '/400/' + cfg.propeller.pushZone;
-                try { (document.body || document.documentElement).appendChild(s); } catch (e) {}
-            }
-            // 2. Propeller Popunder/OnClick
-            if (cfg.propeller.popunderUrl) {
-                const s = document.createElement('script');
-                s.src = cfg.propeller.popunderUrl;
-                document.body.appendChild(s);
-            }
-            // 3. Propeller Banners
-            if (cfg.propeller.topBannerZone) {
-                const container = document.getElementById('ad-top-container');
-                const wrapper = document.getElementById('propeller-top-wrapper');
-                container.classList.remove('hidden');
-                // Вставка стандартного скрипта пропеллера (примерная логика)
-                // Для баннеров обычно используется скрипт с data-zone
-                const s = document.createElement('script');
-                s.dataset.zone = cfg.propeller.topBannerZone;
-                s.src = 'https://pfe.adgram.io/js?id=' + cfg.propeller.topBannerZone; // Пример URL, зависит от сети
-                // Если у Propeller другой формат кода, сюда можно просто innerHTML вставить
-                wrapper.innerHTML = `<!-- Zone: ${cfg.propeller.topBannerZone} -->`; 
-                // Примечание: для баннеров PropellerAds часто дает просто скрипт. 
-                // Если скрипт не грузится, значит нужен конкретный код от пропеллера.
-            }
-            if (cfg.propeller.bottomBannerZone) {
-                const container = document.getElementById('ad-bottom-container');
-                container.classList.remove('hidden');
-                document.getElementById('propeller-bottom-wrapper').innerHTML = `<!-- Zone: ${cfg.propeller.bottomBannerZone} -->`;
+                s.dataset.zone = cfg.popunderZone;
+                s.src = 'https://al5sm.com/tag.min.js';
+                (document.documentElement || document.body).appendChild(s);
             }
 
-            // 4. A-ADS
-            if (cfg.aads.id) {
-                const wrapper = document.getElementById('aads-wrapper');
-                wrapper.innerHTML = `<iframe data-aa="${cfg.aads.id}" src="//ad.a-ads.com/${cfg.aads.id}?size=300x250" style="width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;"></iframe>`;
+            // 2. In-Page Push
+            if (cfg.pushZone && cfg.pushDomain) {
+                const s = document.createElement('script');
+                s.src = `https://${cfg.pushDomain}/act/files/tag.min.js?z=${cfg.pushZone}`;
+                s.dataset.cfasync = "false";
+                s.async = true;
+                (document.body || document.documentElement).appendChild(s);
             }
 
-            // 5. Adsterra
-            if (cfg.adsterra.key) {
-                const container = document.getElementById('ad-adsterra-container');
-                container.style.marginTop = '15px';
-                // Adsterra Native script construction
+            // 3. Vignette Banner (Новый код)
+            if (cfg.bannerZone) {
                 const s = document.createElement('script');
-                s.type = 'text/javascript';
-                s.src = '//www.highperformanceformat.com/' + cfg.adsterra.key + '/invoke.js';
-                const conf = document.createElement('script');
-                conf.type = 'text/javascript';
-                conf.innerHTML = `atOptions = { 'key' : '${cfg.adsterra.key}', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };`;
-                container.appendChild(conf);
-                container.appendChild(s);
+                s.dataset.zone = cfg.bannerZone;
+                s.src = 'https://gizokraijaw.net/vignette.min.js';
+                (document.documentElement || document.body).appendChild(s);
             }
         }
 
@@ -498,7 +437,7 @@
             }
         })();
         const tgCheckModal = document.getElementById('tgCheckModal'), tgInfoModal = document.getElementById('tgInfoModal'), editorHelpModal = document.getElementById('editorHelpModal'), isInsideTgBtn = document.getElementById('isInsideTgBtn'), isOutsideTgBtn = document.getElementById('isOutsideTgBtn'), closeInfoModalBtn = document.getElementById('closeInfoModalBtn'), closeEditorHelpModalBtn = document.getElementById('closeEditorHelpModalBtn'), tgHelpIcon = document.getElementById('tgHelpIcon'), appContainer = document.getElementById('appContainer'), initialChoice = document.getElementById('initialChoice'), startTemplateBtn = document.getElementById('startTemplateBtn'), uploadArea = document.getElementById('uploadArea'), imageLoader = document.getElementById('imageLoader'), templateGeneratorArea = document.getElementById('templateGeneratorArea'), generateTemplateBtn = document.getElementById('generateTemplateBtn'), templateTextInput = document.getElementById('templateTextInput'), mainContent = document.getElementById('mainContent'), previewImage = document.getElementById('previewImage'), resetBtn = document.getElementById('resetBtn'), partsSlider = document.getElementById('partsSlider'), partsValue = document.getElementById('partsValue'), templatesGroup = document.getElementById('templatesGroup'), modeGroup = document.getElementById('modeGroup'), resetEditorBtn = document.getElementById('resetEditorBtn'), previewGrid = document.getElementById('previewGrid'), editorContainer = document.getElementById('editorContainer'), editorCanvas = document.getElementById('editorCanvas'), downloadBtn = document.getElementById('downloadBtn'), loader = document.getElementById('loader'), loaderText = document.getElementById('loaderText'), loaderHint = document.getElementById('loaderHint');
-        const adAadsContainer = document.getElementById('ad-aads-container');
+        
         let originalImage = null, generatedBlobs = [], editorModeFirstTime = true, editorState = {};
 
         isOutsideTgBtn.addEventListener('click', () => { tgCheckModal.classList.add('hidden'); appContainer.style.visibility = 'visible'; });
@@ -513,7 +452,7 @@
             templateGeneratorArea.classList.add('hidden');
             initialChoice.classList.remove('hidden');
             tgHelpIcon.classList.add('hidden');
-            if (window.AD_CONFIG.aads.id) adAadsContainer.classList.add('hidden');
+            
             originalImage = null; generatedBlobs = []; imageLoader.value = null; previewGrid.innerHTML = ''; editorContainer.classList.add('hidden');
             partsSlider.value = 9; partsValue.textContent = '9';
             modeGroup.querySelector('.active').classList.remove('active');
@@ -578,8 +517,6 @@
                     initialChoice.classList.add('hidden');
                     mainContent.classList.remove('hidden');
                     tgHelpIcon.classList.remove('hidden');
-                    // Показываем рекламу A-ADS только если задан ID
-                    if (window.AD_CONFIG.aads.id) adAadsContainer.classList.remove('hidden');
                     resetAppDefaults();
                     generatePreview();
                 };
