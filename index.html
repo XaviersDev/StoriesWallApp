@@ -13,19 +13,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <!-- ========================================================== -->
-    <!-- 💰 НАСТРОЙКИ РЕКЛАМЫ                                       -->
+    <!-- 💰 НАСТРОЙКИ РЕКЛАМЫ (ТВОИ НОВЫЕ СКРИПТЫ)                  -->
     <!-- ========================================================== -->
     <script>
         window.AD_CONFIG = {
-            // ❌ Popunder (Отключен, чтобы не бесил)
-            popunderZone: '', 
+            // 1. Native Interstitial (Vignette)
+            // Твой ID: 10270725 | Скрипт: groleegni.net
+            interstitialId: '10270725', 
 
-            // ✅ Vignette Banner (Всплывает при переходах/кликах)
-            vignetteZone: '10270606', 
+            // 2. In-Page Push 
+            // Твой ID: 10270729 | Скрипт: nap5k.com
+            ippId: '10270729',       
 
-            // ✅ In-Page Push (Уведомления)
-            pushZone: '10270591',       
-            pushDomain: '3nbf4.com'
+            // 3. Popunder (ВЫКЛЮЧЕН, чтобы не было редиректов)
+            popunderId: '' 
         };
     </script>
 
@@ -418,26 +419,21 @@
             const overlay = document.getElementById('adblock-overlay');
             let blocked = false;
 
-            // 1. Проверка через CSS (обычно блокировщики скрывают элементы с классом ad-banner)
             if (bait.offsetParent === null || bait.offsetHeight === 0 || bait.timeLeft === 0) {
                 blocked = true;
             }
 
-            // 2. Проверка через сетевой запрос (на известный рекламный домен)
             if (!blocked) {
                 try {
                     await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', { 
-                        method: 'HEAD', 
-                        mode: 'no-cors' 
+                        method: 'HEAD', mode: 'no-cors' 
                     });
-                } catch (e) {
-                    blocked = true;
-                }
+                } catch (e) { blocked = true; }
             }
 
             if (blocked) {
                 overlay.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Блокируем прокрутку
+                document.body.style.overflow = 'hidden';
             }
         }
 
@@ -446,33 +442,29 @@
         /* ====================================================== */
         function initAdsSystem() {
             const cfg = window.AD_CONFIG;
-            
-            // Запускаем проверку AdBlock
-            checkAdBlock();
+            checkAdBlock(); // Проверяем AdBlock
 
-            // 1. In-Page Push (Уведомления)
-            if (cfg.pushZone && cfg.pushDomain) {
+            // 1. Native Interstitial (Vignette)
+            if (cfg.interstitialId) {
                 const s = document.createElement('script');
-                s.src = `https://${cfg.pushDomain}/act/files/tag.min.js?z=${cfg.pushZone}`;
-                s.dataset.cfasync = "false";
-                s.async = true;
-                (document.body || document.documentElement).appendChild(s);
+                s.dataset.zone = cfg.interstitialId;
+                s.src = 'https://groleegni.net/vignette.min.js';
+                (document.documentElement || document.body).appendChild(s);
             }
 
-            // 2. Vignette Banner (Всплывашка)
-            if (cfg.vignetteZone) {
+            // 2. In-Page Push (IPP)
+            if (cfg.ippId) {
                 const s = document.createElement('script');
-                s.dataset.zone = cfg.vignetteZone;
-                s.src = 'https://gizokraijaw.net/vignette.min.js';
+                s.dataset.zone = cfg.ippId;
+                s.src = 'https://nap5k.com/tag.min.js';
                 (document.documentElement || document.body).appendChild(s);
             }
             
             // 3. Popunder (ВЫКЛЮЧЕН)
-            // Если захочешь вернуть "клик=реклама", раскомментируй строки ниже:
             /*
-            if (cfg.popunderZone) {
+            if (cfg.popunderId) {
                 const s = document.createElement('script');
-                s.dataset.zone = cfg.popunderZone;
+                s.dataset.zone = cfg.popunderId;
                 s.src = 'https://al5sm.com/tag.min.js';
                 (document.documentElement || document.body).appendChild(s);
             }
@@ -509,7 +501,6 @@
             templateGeneratorArea.classList.add('hidden');
             initialChoice.classList.remove('hidden');
             tgHelpIcon.classList.add('hidden');
-            
             originalImage = null; generatedBlobs = []; imageLoader.value = null; previewGrid.innerHTML = ''; editorContainer.classList.add('hidden');
             partsSlider.value = 9; partsValue.textContent = '9';
             modeGroup.querySelector('.active').classList.remove('active');
