@@ -1,10 +1,9 @@
-
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="monetag" content="ddb17fc952b7873e9ceefd6a58e462a5">
     <title>Stories Wall - Создай свою стенку из историй</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +12,35 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- ========================================================== -->
+    <!-- ⚙️ НАСТРОЙКИ РЕКЛАМЫ (ЗАПОЛНИ ТОЛЬКО ЭТО)                  -->
+    <!-- Вставь свои ID внутрь кавычек. Если рекламы нет, оставь ''. -->
+    <!-- ========================================================== -->
+    <script>
+        window.AD_CONFIG = {
+            // 1. PropellerAds (Баннеры и Пуши)
+            propeller: {
+                topBannerZone: '',    // ID зоны для верхнего баннера
+                bottomBannerZone: '', // ID зоны перед кнопкой скачивания
+                pushZone: '',         // ID зоны для пуш-уведомлений
+                pushDomain: '',       // Твой домен для пушей (например, gluodogoth.net)
+                // Ссылка для OnClick/Popunder (полная ссылка, которую дает пропеллер, начинающаяся с //)
+                popunderUrl: ''       
+            },
+            
+            // 2. A-ADS (Крипто реклама)
+            aads: {
+                id: ''                // ID рекламного блока (Unit ID)
+            },
+            
+            // 3. Adsterra (Native Banner / Social Bar)
+            adsterra: {
+                // Сюда вставь ПОЛНЫЙ ключ (например: '7890abcdef123456...')
+                key: '' 
+            }
+        };
+    </script>
 
     <style>
         :root {
@@ -43,6 +71,28 @@
             position: relative;
             z-index: 10;
         }
+
+        /* Стили для рекламных блоков */
+        .ad-block {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 24px 0;
+            border: 1px solid var(--border-color);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .ad-block.hidden { display: none !important; }
+        .ad-block::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--magic-grad-start), var(--magic-grad-end)); opacity: 0.3;
+        }
+        .ad-label { font-size: 10px; color: var(--hint-color); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
 
         .header { text-align: center; margin-bottom: 32px; }
         .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
@@ -282,32 +332,30 @@
             75% { transform: translateY(-20px) translateX(10px) rotate(2deg); } 90% { opacity: 0.7; }
             100% { transform: translateY(20px) translateX(0px) rotate(0deg); opacity: 0; }
         }
-        /* === MOBILE FIXES START === */
+        
         @media screen and (max-width: 550px) {
-            .mode-buttons-wrapper {
-                flex-direction: column;
-                align-items: stretch; /* Делаем дочерние элементы одинаковой ширины */
-                gap: 16px;
-            }
-
-            #editorContainer {
-                width: 90%; /* Уменьшаем ширину редактора */
-                margin-left: auto;
-                margin-right: auto; /* И центрируем его */
-            }
+            .mode-buttons-wrapper { flex-direction: column; align-items: stretch; gap: 16px; }
+            #editorContainer { width: 90%; margin-left: auto; margin-right: auto; }
         }
-        /* === MOBILE FIXES END === */
     </style>
 </head>
 <body>
     <div id="floating-hashtags-container"></div>
+    
+    <!-- Модалки -->
     <div class="modal-overlay" id="tgCheckModal"><div class="modal-content"><span class="material-symbols-outlined">quiz</span><h2>Важный вопрос</h2><p>Вы открыли этот сайт во встроенном браузере Telegram?</p><div class="modal-buttons"><button class="modal-btn secondary" id="isInsideTgBtn">Да, я в Telegram</button><button class="modal-btn primary" id="isOutsideTgBtn">Нет, я в обычном браузере</button></div></div></div>
-    <div class="modal-overlay hidden" id="tgInfoModal"><div class="modal-content"><span class="material-symbols-outlined">open_in_new</span><h2>Как открыть в браузere?</h2><p>Скачивание файлов не работает внутри Telegram. Чтобы всё получилось, пожалуйста, нажмите на <b>три точки (⋮)</b> в правом верхнем углу и выберите <b>"Открыть в браузере"</b>.</p><div class="modal-buttons"><button class="modal-btn primary" id="closeInfoModalBtn">Понятно</button></div></div></div>
+    <div class="modal-overlay hidden" id="tgInfoModal"><div class="modal-content"><span class="material-symbols-outlined">open_in_new</span><h2>Как открыть в браузере?</h2><p>Скачивание файлов не работает внутри Telegram. Чтобы всё получилось, пожалуйста, нажмите на <b>три точки (⋮)</b> в правом верхнем углу и выберите <b>"Открыть в браузере"</b>.</p><div class="modal-buttons"><button class="modal-btn primary" id="closeInfoModalBtn">Понятно</button></div></div></div>
     <div class="modal-overlay hidden" id="editorHelpModal"><div class="modal-content"><span class="material-symbols-outlined">touch_app</span><h2>Режим Редактора</h2><p>Теперь вы можете свободно настраивать изображение прямо на предпросмотре ниже.<br><br>• <b>Перетаскивайте</b> изображение, чтобы изменить его положение.<br>• <b>Тяните за углы</b> для масштабирования.<br>• <b>Тяните за стороны</b> для растягивания.</p><div class="modal-buttons"><button class="modal-btn primary" id="closeEditorHelpModalBtn">Отлично!</button></div></div></div>
     <div id="tgHelpIcon" class="hidden"><span class="material-symbols-outlined">open_in_new</span></div>
     
     <div class="container" id="appContainer" style="visibility: hidden;">
         <header class="header"><h1>StoriesWall</h1><p>Создай бесшовную стенку из историй для своего профиля. Быстро, бесплатно и прямо в браузере.</p></header>
+
+        <!-- РЕКЛАМА TOP (Propeller) -->
+        <div id="ad-top-container" class="ad-block hidden">
+            <div class="ad-label">Реклама</div>
+            <div id="propeller-top-wrapper"></div>
+        </div>
 
         <div id="initialChoice">
             <label for="imageLoader" class="choice-btn">
@@ -318,7 +366,7 @@
             <div class="choice-btn magic" id="startTemplateBtn">
                 <span class="material-symbols-outlined">auto_awesome</span>
                 <h2>✨ Сгенерировать магию</h2>
-                <p>Создай уникальный фон со своим ником в один клик. Каждый раз - ИИ делает рандомно</p>
+                <p>Создай уникальный фон со своим ником в один клик</p>
             </div>
         </div>
 
@@ -341,15 +389,32 @@
             </button>
         </div>
 
+        <!-- РЕКЛАМА A-ADS (Появляется после выбора) -->
+        <div id="ad-aads-container" class="ad-block hidden">
+            <div class="ad-label">Спонсор</div>
+            <div id="aads-wrapper"></div>
+        </div>
+
         <main id="mainContent" class="hidden">
             <div class="image-preview-small"><img id="previewImage" src="" alt="Uploaded image preview"></div>
             <div class="reset-container"><button id="resetBtn"><span class="material-symbols-outlined">restart_alt</span>Начать заново</button></div>
             <div class="controls-card">
                 <div class="control-group"><div class="control-label"><label for="partsSlider" style="display: flex; align-items: center;"><span class="material-symbols-outlined">grid_on</span> Количество частей</label><span id="partsValue">9</span></div><input type="range" id="partsSlider" min="3" max="99" step="3" value="9"><div class="templates-group" id="templatesGroup"><button class="template-btn" data-parts="3">3</button><button class="template-btn" data-parts="6">6</button><button class="template-btn" data-parts="9">9</button><button class="template-btn" data-parts="12">12</button><button class="template-btn" data-parts="15">15</button><button class="template-btn" data-parts="18">18</button><button class="template-btn" data-parts="21">21</button><button class="template-btn" data-parts="42">42</button></div></div>
                 <div class="control-group"><div class="control-label"><label style="display: flex; align-items: center;"><span class="material-symbols-outlined">aspect_ratio</span> Режим</label></div><div class="mode-buttons-wrapper"><div class="mode-buttons" id="modeGroup"><button class="mode-btn magic-outline active" data-mode="editor"><span class="material-symbols-outlined">tune</span>Редактор</button><button class="mode-btn" data-mode="cover"><span class="material-symbols-outlined">crop_free</span>Обрезать</button><button class="mode-btn" data-mode="contain"><span class="material-symbols-outlined">fullscreen_exit</span>Вписать</button></div><button id="resetEditorBtn" class="hidden"><span class="material-symbols-outlined">refresh</span></button></div></div>
+                
+                <!-- РЕКЛАМА ADSTERRA NATIVE -->
+                <div id="ad-adsterra-container"></div>
             </div>
+            
             <div id="previewGrid" class="hidden"></div>
             <div id="editorContainer" class=""><canvas id="editorCanvas"></canvas></div>
+            
+            <!-- РЕКЛАМА BOTTOM (Propeller) -->
+            <div id="ad-bottom-container" class="ad-block hidden">
+                <div class="ad-label">Реклама</div>
+                <div id="propeller-bottom-wrapper"></div>
+            </div>
+
             <button id="downloadBtn" disabled><span class="material-symbols-outlined">download</span>Скачать (.zip)</button>
         </main>
         <footer><p>Сделано с ❤️ AlliSighs и <a href="https://t.me/storieswall_bot" target="_blank">@storieswall_bot</a></p></footer>
@@ -357,26 +422,83 @@
     <div class="loader hidden" id="loader"><div class="spinner"></div><p id="loaderText">Обработка...</p><span class="loader-hint" id="loaderHint"></span></div>
 
     <script>
+        /* ====================================================== */
+        /* ⚙️ ЛОГИКА АВТОМАТИЧЕСКОЙ ВСТАВКИ РЕКЛАМЫ (НЕ ТРОГАТЬ)  */
+        /* ====================================================== */
+        function initAdsSystem() {
+            const cfg = window.AD_CONFIG;
+            
+            // 1. Propeller PUSH
+            if (cfg.propeller.pushZone && cfg.propeller.pushDomain) {
+                const s = document.createElement('script');
+                s.src = 'https://' + cfg.propeller.pushDomain + '/400/' + cfg.propeller.pushZone;
+                try { (document.body || document.documentElement).appendChild(s); } catch (e) {}
+            }
+            // 2. Propeller Popunder/OnClick
+            if (cfg.propeller.popunderUrl) {
+                const s = document.createElement('script');
+                s.src = cfg.propeller.popunderUrl;
+                document.body.appendChild(s);
+            }
+            // 3. Propeller Banners
+            if (cfg.propeller.topBannerZone) {
+                const container = document.getElementById('ad-top-container');
+                const wrapper = document.getElementById('propeller-top-wrapper');
+                container.classList.remove('hidden');
+                // Вставка стандартного скрипта пропеллера (примерная логика)
+                // Для баннеров обычно используется скрипт с data-zone
+                const s = document.createElement('script');
+                s.dataset.zone = cfg.propeller.topBannerZone;
+                s.src = 'https://pfe.adgram.io/js?id=' + cfg.propeller.topBannerZone; // Пример URL, зависит от сети
+                // Если у Propeller другой формат кода, сюда можно просто innerHTML вставить
+                wrapper.innerHTML = `<!-- Zone: ${cfg.propeller.topBannerZone} -->`; 
+                // Примечание: для баннеров PropellerAds часто дает просто скрипт. 
+                // Если скрипт не грузится, значит нужен конкретный код от пропеллера.
+            }
+            if (cfg.propeller.bottomBannerZone) {
+                const container = document.getElementById('ad-bottom-container');
+                container.classList.remove('hidden');
+                document.getElementById('propeller-bottom-wrapper').innerHTML = `<!-- Zone: ${cfg.propeller.bottomBannerZone} -->`;
+            }
 
+            // 4. A-ADS
+            if (cfg.aads.id) {
+                const wrapper = document.getElementById('aads-wrapper');
+                wrapper.innerHTML = `<iframe data-aa="${cfg.aads.id}" src="//ad.a-ads.com/${cfg.aads.id}?size=300x250" style="width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;"></iframe>`;
+            }
+
+            // 5. Adsterra
+            if (cfg.adsterra.key) {
+                const container = document.getElementById('ad-adsterra-container');
+                container.style.marginTop = '15px';
+                // Adsterra Native script construction
+                const s = document.createElement('script');
+                s.type = 'text/javascript';
+                s.src = '//www.highperformanceformat.com/' + cfg.adsterra.key + '/invoke.js';
+                const conf = document.createElement('script');
+                conf.type = 'text/javascript';
+                conf.innerHTML = `atOptions = { 'key' : '${cfg.adsterra.key}', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };`;
+                container.appendChild(conf);
+                container.appendChild(s);
+            }
+        }
+
+        /* ====================================================== */
+        /* 🚀 ОСНОВНОЙ КОД ПРИЛОЖЕНИЯ                             */
+        /* ====================================================== */
         (function() {
             const ua = navigator.userAgent.toLowerCase();
             const isAndroid = ua.indexOf("android") > -1;
-            // Проверяем по userAgent, что мы внутри Telegram и на Android
             if (isAndroid && /telegram/i.test(ua)) {
-                // Получаем текущий URL страницы
                 const currentUrl = window.location.href;
-                
-                // Создаем специальную ссылку-интент для Android
-                // Она говорит системе: "открой этот URL с помощью приложения, которое умеет это делать (т.е. браузера)"
                 const intentUrl = "intent://" + 
                                   currentUrl.substring(currentUrl.indexOf('//') + 2) + 
                                   "#Intent;scheme=https;action=android.intent.action.VIEW;end;";
-                
-                // Немедленно перенаправляем пользователя
                 window.location.href = intentUrl;
             }
         })();
         const tgCheckModal = document.getElementById('tgCheckModal'), tgInfoModal = document.getElementById('tgInfoModal'), editorHelpModal = document.getElementById('editorHelpModal'), isInsideTgBtn = document.getElementById('isInsideTgBtn'), isOutsideTgBtn = document.getElementById('isOutsideTgBtn'), closeInfoModalBtn = document.getElementById('closeInfoModalBtn'), closeEditorHelpModalBtn = document.getElementById('closeEditorHelpModalBtn'), tgHelpIcon = document.getElementById('tgHelpIcon'), appContainer = document.getElementById('appContainer'), initialChoice = document.getElementById('initialChoice'), startTemplateBtn = document.getElementById('startTemplateBtn'), uploadArea = document.getElementById('uploadArea'), imageLoader = document.getElementById('imageLoader'), templateGeneratorArea = document.getElementById('templateGeneratorArea'), generateTemplateBtn = document.getElementById('generateTemplateBtn'), templateTextInput = document.getElementById('templateTextInput'), mainContent = document.getElementById('mainContent'), previewImage = document.getElementById('previewImage'), resetBtn = document.getElementById('resetBtn'), partsSlider = document.getElementById('partsSlider'), partsValue = document.getElementById('partsValue'), templatesGroup = document.getElementById('templatesGroup'), modeGroup = document.getElementById('modeGroup'), resetEditorBtn = document.getElementById('resetEditorBtn'), previewGrid = document.getElementById('previewGrid'), editorContainer = document.getElementById('editorContainer'), editorCanvas = document.getElementById('editorCanvas'), downloadBtn = document.getElementById('downloadBtn'), loader = document.getElementById('loader'), loaderText = document.getElementById('loaderText'), loaderHint = document.getElementById('loaderHint');
+        const adAadsContainer = document.getElementById('ad-aads-container');
         let originalImage = null, generatedBlobs = [], editorModeFirstTime = true, editorState = {};
 
         isOutsideTgBtn.addEventListener('click', () => { tgCheckModal.classList.add('hidden'); appContainer.style.visibility = 'visible'; });
@@ -391,6 +513,7 @@
             templateGeneratorArea.classList.add('hidden');
             initialChoice.classList.remove('hidden');
             tgHelpIcon.classList.add('hidden');
+            if (window.AD_CONFIG.aads.id) adAadsContainer.classList.add('hidden');
             originalImage = null; generatedBlobs = []; imageLoader.value = null; previewGrid.innerHTML = ''; editorContainer.classList.add('hidden');
             partsSlider.value = 9; partsValue.textContent = '9';
             modeGroup.querySelector('.active').classList.remove('active');
@@ -455,6 +578,8 @@
                     initialChoice.classList.add('hidden');
                     mainContent.classList.remove('hidden');
                     tgHelpIcon.classList.remove('hidden');
+                    // Показываем рекламу A-ADS только если задан ID
+                    if (window.AD_CONFIG.aads.id) adAadsContainer.classList.remove('hidden');
                     resetAppDefaults();
                     generatePreview();
                 };
@@ -671,7 +796,7 @@
         }
 
         async function downloadZip() {
-            const hintText = "Скоро начнётся загрузка! Если загрузка слишком долго не начинается (5 минут минимум), возможно вы пользуетесь сайтом внутри телеграм. Если это так, то откройте его в другом браузере.";
+            const hintText = "Скоро начнётся загрузка! Если загрузка слишком долго не начинается, откройте сайт в браузере (не в Telegram).";
             showLoader('Создаю ZIP-архив...', hintText); await new Promise(resolve => setTimeout(resolve, 50));
             generatedBlobs = await createFinalBlobs();
             if (generatedBlobs.length === 0) { hideLoader(); return; };
@@ -685,6 +810,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            initAdsSystem(); // Запускаем рекламу
+            
             const container = document.getElementById('floating-hashtags-container'); if (!container) return; const hashtagCount = 7, text = '@storieswall_bot', tgIconSvg = `<span class="tg-icon"><svg viewBox="0 0 24 24"><path d="M15 12l-4-4l-4 8l10-4zM22 2L2 9l6 3l3 6l9-16z"/></svg></span>`;
             for (let i = 0; i < hashtagCount; i++) {
                 const hashtag = document.createElement('div'); hashtag.className = 'floating-hashtag'; hashtag.innerHTML = tgIconSvg + text;
@@ -695,142 +822,58 @@
         });
 
         // ======================================================
-        // ✨ АХУЕННЫЕ ГЕНЕРАТОРЫ НАЧИНАЮТСЯ ЗДЕСЬ ✨
+        // ✨ ГЕНЕРАТОРЫ ШАБЛОНОВ (MAGIC)
         // ======================================================
 
         function getRandomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
         function getRandomFloat(min, max) { return Math.random() * (max - min) + min; }
         
         const palettes = {
-            cosmic: [
-                ['#0f0c29', '#302b63', '#24243e'], ['#141E30', '#243B55'], ['#000428', '#004e92'],
-                ['#41295a', '#2F0743'], ['#16222A', '#3A6073'], ['#2c3e50', '#4ca1af']
-            ],
-            neon: [
-                ['#ff00ff', '#00ffff'], ['#f83bff', '#2cfd2f'], ['#ff4b2b', '#ff416c'],
-                ['#00c6ff', '#0072ff'], ['#f7971e', '#ffd200']
-            ],
-            geo: [
-                ['#00c9ff', '#92fe9d'], ['#ee9ca7', '#ffdde1'], ['#de6262', '#ffb88c'],
-                ['#6dd5ed', '#2193b0'], ['#ddd6f3', '#faaca8']
-            ]
+            cosmic: [['#0f0c29', '#302b63', '#24243e'], ['#141E30', '#243B55'], ['#000428', '#004e92'], ['#41295a', '#2F0743'], ['#16222A', '#3A6073'], ['#2c3e50', '#4ca1af']],
+            neon: [['#ff00ff', '#00ffff'], ['#f83bff', '#2cfd2f'], ['#ff4b2b', '#ff416c'], ['#00c6ff', '#0072ff'], ['#f7971e', '#ffd200']],
+            geo: [['#00c9ff', '#92fe9d'], ['#ee9ca7', '#ffdde1'], ['#de6262', '#ffb88c'], ['#6dd5ed', '#2193b0'], ['#ddd6f3', '#faaca8']]
         };
 
         async function drawText(ctx, text, width, height) {
-             ctx.font = `900 ${width * 0.1}px Inter`;
-             ctx.textAlign = 'center';
-             ctx.textBaseline = 'middle';
-             ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-             ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-             ctx.shadowBlur = 15;
-             ctx.fillText(text, width / 2, height / 2 + getRandomFloat(-height*0.1, height*0.1));
-             ctx.shadowBlur = 0;
+             ctx.font = `900 ${width * 0.1}px Inter`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+             ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; ctx.shadowColor = 'rgba(0, 0, 0, 0.5)'; ctx.shadowBlur = 15;
+             ctx.fillText(text, width / 2, height / 2 + getRandomFloat(-height*0.1, height*0.1)); ctx.shadowBlur = 0;
         }
 
         async function templateCosmic(text, width, height) {
             const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            const colors = getRandomFrom(palettes.cosmic);
+            const ctx = canvas.getContext('2d'); const colors = getRandomFrom(palettes.cosmic);
             ctx.fillStyle = colors[0]; ctx.fillRect(0, 0, width, height);
-
             for (let i = 0; i < 3; i++) {
-                const grad = ctx.createRadialGradient(
-                    getRandomFloat(0, width), getRandomFloat(0, height), 0,
-                    getRandomFloat(0, width), getRandomFloat(0, height), Math.max(width, height) * 0.7
-                );
-                grad.addColorStop(0, getRandomFrom(colors) + '66');
-                grad.addColorStop(1, 'transparent');
-                ctx.globalCompositeOperation = 'lighter';
-                ctx.fillStyle = grad;
-                ctx.fillRect(0, 0, width, height);
+                const grad = ctx.createRadialGradient(getRandomFloat(0, width), getRandomFloat(0, height), 0, getRandomFloat(0, width), getRandomFloat(0, height), Math.max(width, height) * 0.7);
+                grad.addColorStop(0, getRandomFrom(colors) + '66'); grad.addColorStop(1, 'transparent');
+                ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = grad; ctx.fillRect(0, 0, width, height);
             }
             ctx.globalCompositeOperation = 'source-over';
-
-            for (let i = 0; i < 500; i++) {
-                ctx.fillStyle = `rgba(255, 255, 255, ${getRandomFloat(0.2, 0.9)})`;
-                ctx.beginPath();
-                ctx.arc(getRandomFloat(0, width), getRandomFloat(0, height), getRandomFloat(0.5, 2), 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            await drawText(ctx, text, width, height);
-            return canvas;
+            for (let i = 0; i < 500; i++) { ctx.fillStyle = `rgba(255, 255, 255, ${getRandomFloat(0.2, 0.9)})`; ctx.beginPath(); ctx.arc(getRandomFloat(0, width), getRandomFloat(0, height), getRandomFloat(0.5, 2), 0, Math.PI * 2); ctx.fill(); }
+            await drawText(ctx, text, width, height); return canvas;
         }
 
         async function templateNeonGrid(text, width, height) {
             const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            const colors = getRandomFrom(palettes.neon);
-            
+            const ctx = canvas.getContext('2d'); const colors = getRandomFrom(palettes.neon);
             ctx.fillStyle = '#100c24'; ctx.fillRect(0, 0, width, height);
-
-            const horizon = height * getRandomFloat(0.45, 0.55);
-            const sunRadius = width * 0.2;
+            const horizon = height * getRandomFloat(0.45, 0.55), sunRadius = width * 0.2;
             const sunGrad = ctx.createRadialGradient(width/2, horizon, 0, width/2, horizon, sunRadius);
-            sunGrad.addColorStop(0, colors[0] + 'aa');
-            sunGrad.addColorStop(0.5, colors[0] + '44');
-            sunGrad.addColorStop(1, 'transparent');
+            sunGrad.addColorStop(0, colors[0] + 'aa'); sunGrad.addColorStop(0.5, colors[0] + '44'); sunGrad.addColorStop(1, 'transparent');
             ctx.fillStyle = sunGrad; ctx.fillRect(0,0,width,height);
-
-            ctx.save();
-            ctx.translate(width / 2, horizon);
-            const lineCount = 30;
-            for (let i = 0; i < lineCount; i++) {
-                const perspective = i / lineCount;
-                const y = Math.pow(perspective, 2) * (height - horizon);
-                ctx.fillStyle = `rgba(255,255,255, ${0.3 * (1 - perspective)})`;
-                ctx.fillRect(-width / 2, y, width, 2);
-            }
-            const verticalLines = 20;
-            for (let i = 0; i <= verticalLines; i++) {
-                 const x = (i / verticalLines - 0.5) * width * 2;
-                 ctx.beginPath();
-                 ctx.moveTo(x, 0);
-                 ctx.lineTo(x * 5, height);
-                 ctx.strokeStyle = colors[1];
-                 ctx.lineWidth = 3;
-                 ctx.shadowColor = colors[1];
-                 ctx.shadowBlur = 20;
-                 ctx.stroke();
-            }
-            ctx.restore();
-            ctx.shadowBlur = 0;
-            
-            await drawText(ctx, text, width, height);
-            return canvas;
+            ctx.save(); ctx.translate(width / 2, horizon);
+            const lineCount = 30; for (let i = 0; i < lineCount; i++) { const perspective = i / lineCount; const y = Math.pow(perspective, 2) * (height - horizon); ctx.fillStyle = `rgba(255,255,255, ${0.3 * (1 - perspective)})`; ctx.fillRect(-width / 2, y, width, 2); }
+            const verticalLines = 20; for (let i = 0; i <= verticalLines; i++) { const x = (i / verticalLines - 0.5) * width * 2; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x * 5, height); ctx.strokeStyle = colors[1]; ctx.lineWidth = 3; ctx.shadowColor = colors[1]; ctx.shadowBlur = 20; ctx.stroke(); }
+            ctx.restore(); ctx.shadowBlur = 0; await drawText(ctx, text, width, height); return canvas;
         }
 
         async function templateGeoChaos(text, width, height) {
             const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            const colors = getRandomFrom(palettes.geo);
-
-            const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-            bgGrad.addColorStop(0, colors[0]);
-            bgGrad.addColorStop(1, colors[1]);
-            ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, width, height);
-
-            for (let i = 0; i < 50; i++) {
-                ctx.save();
-                ctx.translate(getRandomFloat(0, width), getRandomFloat(0, height));
-                ctx.rotate(getRandomFloat(0, Math.PI * 2));
-                ctx.fillStyle = `rgba(255, 255, 255, ${getRandomFloat(0.05, 0.2)})`;
-                
-                const shapeType = Math.random();
-                const size = getRandomFloat(width * 0.05, width * 0.3);
-
-                if (shapeType < 0.5) { // Rectangle
-                    ctx.fillRect(-size/2, -size/2, size, size);
-                } else { // Circle
-                    ctx.beginPath();
-                    ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.restore();
-            }
-            
-            await drawText(ctx, text, width, height);
-            return canvas;
+            const ctx = canvas.getContext('2d'); const colors = getRandomFrom(palettes.geo);
+            const bgGrad = ctx.createLinearGradient(0, 0, width, height); bgGrad.addColorStop(0, colors[0]); bgGrad.addColorStop(1, colors[1]); ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, width, height);
+            for (let i = 0; i < 50; i++) { ctx.save(); ctx.translate(getRandomFloat(0, width), getRandomFloat(0, height)); ctx.rotate(getRandomFloat(0, Math.PI * 2)); ctx.fillStyle = `rgba(255, 255, 255, ${getRandomFloat(0.05, 0.2)})`; const shapeType = Math.random(); const size = getRandomFloat(width * 0.05, width * 0.3); if (shapeType < 0.5) { ctx.fillRect(-size/2, -size/2, size, size); } else { ctx.beginPath(); ctx.arc(0, 0, size / 2, 0, Math.PI * 2); ctx.fill(); } ctx.restore(); }
+            await drawText(ctx, text, width, height); return canvas;
         }
 
         const templateGenerators = [templateCosmic, templateNeonGrid, templateGeoChaos];
@@ -839,26 +882,13 @@
             const text = templateTextInput.value.trim() || 'StoriesWall';
             showLoader('Творим магию...', 'Создаем уникальный фон...');
             await new Promise(resolve => setTimeout(resolve, 50));
-            
-            const parts = parseInt(partsSlider.value, 10);
-            const GRID_COLS = 3;
-            const GRID_ROWS = Math.ceil(parts / GRID_COLS);
-            const totalContentWidth = 1080 * GRID_COLS;
-            const totalContentHeight = 1342 * GRID_ROWS;
-
+            const parts = parseInt(partsSlider.value, 10), GRID_COLS = 3, GRID_ROWS = Math.ceil(parts / GRID_COLS), totalContentWidth = 1080 * GRID_COLS, totalContentHeight = 1342 * GRID_ROWS;
             try {
                 const randomGenerator = getRandomFrom(templateGenerators);
                 const generatedCanvas = await randomGenerator(text, totalContentWidth, totalContentHeight);
-                generatedCanvas.toBlob(blob => {
-                    loadImage(blob, true);
-                }, 'image/png');
-            } catch (error) {
-                console.error('Ошибка при генерации шаблона:', error);
-                alert('Упс, магия не сработала. Попробуйте еще раз.');
-                hideLoader();
-            }
+                generatedCanvas.toBlob(blob => { loadImage(blob, true); }, 'image/png');
+            } catch (error) { console.error(error); alert('Упс, магия не сработала.'); hideLoader(); }
         });
-
     </script>
 </body>
 </html>
