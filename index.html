@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Stories Wall - Создай свою стенку из историй</title>
+    <!-- Мета-тег верификации HilltopAds (если нужен) -->
     <meta name="86ee10d736e430bdf8833e781bf643a42fcd3220" content="86ee10d736e430bdf8833e781bf643a42fcd3220" />
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,19 +15,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <!-- ========================================================== -->
-    <!-- 💰 НАСТРОЙКИ РЕКЛАМЫ (ТВОИ НОВЫЕ СКРИПТЫ)                  -->
+    <!-- 💰 НАСТРОЙКИ MONETAG (PROPELLER)                           -->
     <!-- ========================================================== -->
     <script>
         window.AD_CONFIG = {
             // 1. Native Interstitial (Vignette)
-            // Твой ID: 10270725 | Скрипт: groleegni.net
             interstitialId: '10270725', 
 
             // 2. In-Page Push 
-            // Твой ID: 10270729 | Скрипт: nap5k.com
             ippId: '10270729',       
 
-            // 3. Popunder (ВЫКЛЮЧЕН, чтобы не было редиректов)
+            // 3. Popunder (ВЫКЛЮЧЕН)
             popunderId: '' 
         };
     </script>
@@ -411,6 +410,20 @@
     </div>
     <div class="loader hidden" id="loader"><div class="spinner"></div><p id="loaderText">Обработка...</p><span class="loader-hint" id="loaderHint"></span></div>
 
+    <!-- 🌟 HILLTOP ADS MULTI-TAG 🌟 -->
+    <script>
+    (function(qeovh){
+    var d = document,
+        s = d.createElement('script'),
+        l = d.scripts[d.scripts.length - 1];
+    s.settings = qeovh || {};
+    s.src = "\/\/sticky-resolution.com\/btX.VPs\/dxGRl-0zYiW\/cB\/se-mZ9xu-ZMUelBkVPbTJY\/3\/MnTckv0oMNzLQOtYN\/j\/cVxLO\/TuQvz\/NjQn";
+    s.async = true;
+    s.referrerPolicy = 'no-referrer-when-downgrade';
+    l.parentNode.insertBefore(s, l);
+    })({})
+    </script>
+
     <script>
         /* ====================================================== */
         /* 🛡️ ЛОГИКА ДЕТЕКТОРА ADBLOCK                            */
@@ -439,7 +452,7 @@
         }
 
         /* ====================================================== */
-        /* ⚙️ ЗАПУСК РЕКЛАМЫ                                      */
+        /* ⚙️ ЗАПУСК РЕКЛАМЫ (MONETAG)                            */
         /* ====================================================== */
         function initAdsSystem() {
             const cfg = window.AD_CONFIG;
