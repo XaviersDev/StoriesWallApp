@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Stories Wall - Создай свою стенку из историй</title>
-    <!-- Мета-тег верификации HilltopAds (если нужен) -->
+    <!-- Мета-тег верификации (оставил старый, если он еще актуален для аккаунта) -->
     <meta name="86ee10d736e430bdf8833e781bf643a42fcd3220" content="86ee10d736e430bdf8833e781bf643a42fcd3220" />
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,22 +13,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-    <!-- ========================================================== -->
-    <!-- 💰 НАСТРОЙКИ MONETAG (PROPELLER)                           -->
-    <!-- ========================================================== -->
-    <script>
-        window.AD_CONFIG = {
-            // 1. Native Interstitial (Vignette)
-            interstitialId: '10270725', 
-
-            // 2. In-Page Push 
-            ippId: '10270729',       
-
-            // 3. Popunder (ВЫКЛЮЧЕН)
-            popunderId: '' 
-        };
-    </script>
 
     <style>
         :root {
@@ -410,14 +394,46 @@
     </div>
     <div class="loader hidden" id="loader"><div class="spinner"></div><p id="loaderText">Обработка...</p><span class="loader-hint" id="loaderHint"></span></div>
 
-    <!-- 🌟 HILLTOP ADS MULTI-TAG 🌟 -->
+    <!-- ========================================================== -->
+    <!-- 💰 НОВЫЕ ТЕГИ HILLTOP ADS                                  -->
+    <!-- ========================================================== -->
+
+    <!-- Multi-tag 1 -->
     <script>
-    (function(qeovh){
+    (function(roa){
     var d = document,
         s = d.createElement('script'),
         l = d.scripts[d.scripts.length - 1];
-    s.settings = qeovh || {};
-    s.src = "\/\/sticky-resolution.com\/btX.VPs\/dxGRl-0zYiW\/cB\/se-mZ9xu-ZMUelBkVPbTJY\/3\/MnTckv0oMNzLQOtYN\/j\/cVxLO\/TuQvz\/NjQn";
+    s.settings = roa || {};
+    s.src = "\/\/guilty-address.com\/bQXuVxs.d\/GUlg0CYpWEcB\/gewmL9cu\/ZHU\/lqkCP\/TfY-3TMbTRkt0cM\/z\/QatgNmjlcmx-OPTXQZzKNmQg";
+    s.async = true;
+    s.referrerPolicy = 'no-referrer-when-downgrade';
+    l.parentNode.insertBefore(s, l);
+    })({})
+    </script>
+
+    <!-- Multi-tag 2 -->
+    <script>
+    (function(twydp){
+    var d = document,
+        s = d.createElement('script'),
+        l = d.scripts[d.scripts.length - 1];
+    s.settings = twydp || {};
+    s.src = "\/\/guilty-address.com\/b\/XeVOs.dNGFlR0\/Y\/W\/cr\/HeSm\/9IuoZgU\/ljkxPXTUYt3jMhjTEEzVMjDfkJtIN-j\/cwyDMsTCMfxTMoAb";
+    s.async = true;
+    s.referrerPolicy = 'no-referrer-when-downgrade';
+    l.parentNode.insertBefore(s, l);
+    })({})
+    </script>
+
+    <!-- In-Page Push -->
+    <script>
+    (function(tnplh){
+    var d = document,
+        s = d.createElement('script'),
+        l = d.scripts[d.scripts.length - 1];
+    s.settings = tnplh || {};
+    s.src = "\/\/guilty-address.com\/byX.VIs\/dbG\/li0fYRW\/cf\/ae\/mj9wuCZsUclXkqPfT\/YT3OMvjTE\/zxMWTTMutFNzj\/cPysMQTmMkxxNVAy";
     s.async = true;
     s.referrerPolicy = 'no-referrer-when-downgrade';
     l.parentNode.insertBefore(s, l);
@@ -449,40 +465,6 @@
                 overlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
             }
-        }
-
-        /* ====================================================== */
-        /* ⚙️ ЗАПУСК РЕКЛАМЫ (MONETAG)                            */
-        /* ====================================================== */
-        function initAdsSystem() {
-            const cfg = window.AD_CONFIG;
-            checkAdBlock(); // Проверяем AdBlock
-
-            // 1. Native Interstitial (Vignette)
-            if (cfg.interstitialId) {
-                const s = document.createElement('script');
-                s.dataset.zone = cfg.interstitialId;
-                s.src = 'https://groleegni.net/vignette.min.js';
-                (document.documentElement || document.body).appendChild(s);
-            }
-
-            // 2. In-Page Push (IPP)
-            if (cfg.ippId) {
-                const s = document.createElement('script');
-                s.dataset.zone = cfg.ippId;
-                s.src = 'https://nap5k.com/tag.min.js';
-                (document.documentElement || document.body).appendChild(s);
-            }
-            
-            // 3. Popunder (ВЫКЛЮЧЕН)
-            /*
-            if (cfg.popunderId) {
-                const s = document.createElement('script');
-                s.dataset.zone = cfg.popunderId;
-                s.src = 'https://al5sm.com/tag.min.js';
-                (document.documentElement || document.body).appendChild(s);
-            }
-            */
         }
 
         /* ====================================================== */
@@ -809,7 +791,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            initAdsSystem(); // Запускаем рекламу
+            // initAdsSystem(); <--- УДАЛЕНО: Инициализация Monetag больше не нужна
+            checkAdBlock(); // Оставляем проверку AdBlock
             
             const container = document.getElementById('floating-hashtags-container'); if (!container) return; const hashtagCount = 7, text = '@storieswall_bot', tgIconSvg = `<span class="tg-icon"><svg viewBox="0 0 24 24"><path d="M15 12l-4-4l-4 8l10-4zM22 2L2 9l6 3l3 6l9-16z"/></svg></span>`;
             for (let i = 0; i < hashtagCount; i++) {
